@@ -29,6 +29,7 @@ const registerValidation = [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('rollNo').trim().notEmpty().withMessage('Roll number is required'),
   body('college').trim().notEmpty().withMessage('College name is required'),
+  body('branch').optional().trim(),
   body('year')
     .isInt({ min: 1, max: 4 })
     .withMessage('Year must be a number between 1 and 4'),
@@ -66,6 +67,7 @@ const updateProfileValidation = [
     .trim()
     .notEmpty()
     .withMessage('College cannot be empty'),
+  body('branch').optional().trim(),
   body('year')
     .optional()
     .isInt({ min: 1, max: 4 })

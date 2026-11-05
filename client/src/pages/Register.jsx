@@ -131,7 +131,7 @@ export default function Register() {
         name: formData.name,
         rollNo: formData.rollNo,
         college: formData.college,
-        branch: formData.branch,
+        branch: (formData.branch && formData.branch.trim()) || 'Mechanical Engineering',
         year: Number(formData.year),
         semester: Number(formData.semester),
         email: formData.email,
@@ -371,13 +371,13 @@ export default function Register() {
                       />
 
                       <Input
-                        label="Branch"
+                        label="Branch / Department"
                         name="branch"
+                        placeholder="e.g. Mechanical Engineering"
                         value={formData.branch}
                         onChange={handleChange}
                         icon={Layers}
-                        disabled
-                        className="opacity-80"
+                        error={errors.branch}
                       />
                     </div>
 

@@ -182,11 +182,12 @@ const updateProfile = async (req, res, next) => {
       });
     }
 
-    const { name, college, year, semester, mobile } = req.body;
+    const { name, college, branch, year, semester, mobile } = req.body;
 
     const allowedUpdates = {};
     if (name !== undefined) allowedUpdates.name = name.trim();
     if (college !== undefined) allowedUpdates.college = college.trim();
+    if (branch !== undefined) allowedUpdates.branch = branch.trim();
     if (year !== undefined) allowedUpdates.year = Number(year);
     if (semester !== undefined) allowedUpdates.semester = Number(semester);
     if (mobile !== undefined) allowedUpdates.mobile = mobile.trim();

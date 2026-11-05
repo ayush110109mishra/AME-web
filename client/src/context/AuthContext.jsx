@@ -65,8 +65,12 @@ export const AuthProvider = ({ children }) => {
       toast.success(`Welcome back, ${receivedUser.name}!`);
       return receivedUser;
     } catch (error) {
-      const msg =
-        error.response?.data?.message || 'Login failed. Please check credentials.';
+      let msg = 'Login failed. Please check credentials.';
+      if (error.response?.data?.message) {
+        msg = error.response.data.message;
+      } else if (error.code === 'ERR_NETWORK' || !error.response) {
+        msg = 'Cannot connect to backend server. Make sure server is running on port 5000.';
+      }
       toast.error(msg);
       throw error;
     }
@@ -85,9 +89,12 @@ export const AuthProvider = ({ children }) => {
       toast.success('Registration successful! Welcome to AME.');
       return receivedUser;
     } catch (error) {
-      const msg =
-        error.response?.data?.message ||
-        'Registration failed. Please verify input.';
+      let msg = 'Registration failed. Please verify input.';
+      if (error.response?.data?.message) {
+        msg = error.response.data.message;
+      } else if (error.code === 'ERR_NETWORK' || !error.response) {
+        msg = 'Cannot connect to backend server. Make sure server is running on port 5000.';
+      }
       toast.error(msg);
       throw error;
     }

@@ -26,6 +26,7 @@ export default function Profile() {
   const [formData, setFormData] = useState({
     name: user?.name || '',
     college: user?.college || '',
+    branch: user?.branch || 'Mechanical Engineering',
     year: String(user?.year || '1'),
     semester: String(user?.semester || '1'),
     mobile: user?.mobile || '',
@@ -63,6 +64,7 @@ export default function Profile() {
       await updateProfile({
         name: formData.name,
         college: formData.college,
+        branch: formData.branch?.trim() || 'Mechanical Engineering',
         year: Number(formData.year),
         semester: Number(formData.semester),
         mobile: formData.mobile,
@@ -144,15 +146,26 @@ export default function Profile() {
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <Input
-                label="Full Name"
-                name="name"
-                icon={User}
-                value={formData.name}
-                onChange={handleChange}
-                error={errors.name}
-                required
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="Full Name"
+                  name="name"
+                  icon={User}
+                  value={formData.name}
+                  onChange={handleChange}
+                  error={errors.name}
+                  required
+                />
+
+                <Input
+                  label="Branch / Specialization"
+                  name="branch"
+                  icon={Layers}
+                  value={formData.branch}
+                  onChange={handleChange}
+                  placeholder="e.g. Mechanical Engineering"
+                />
+              </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
