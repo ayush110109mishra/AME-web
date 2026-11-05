@@ -89,11 +89,13 @@ export const AuthProvider = ({ children }) => {
       toast.success('Registration successful! Welcome to AME.');
       return receivedUser;
     } catch (error) {
-      let msg = 'Registration failed. Please verify input.';
-      if (error.response?.data?.message) {
-        msg = error.response.data.message;
-      } else if (error.code === 'ERR_NETWORK' || !error.response) {
-        msg = 'Cannot connect to backend server. Make sure server is running on port 5000.';
+      let msg = error.response?.data?.message;
+      if (!msg) {
+        if (error.code === 'ERR_NETWORK' || !error.response) {
+          msg = 'Cannot connect to backend server. Make sure server is running on port 5000.';
+        } else {
+          msg = 'Registration failed. Please check your inputs.';
+        }
       }
       toast.error(msg);
       throw error;

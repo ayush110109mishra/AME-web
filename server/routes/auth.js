@@ -27,7 +27,10 @@ const authLimiter = rateLimit({
 // Register validation rules
 const registerValidation = [
   body('name').trim().notEmpty().withMessage('Name is required'),
-  body('rollNo').trim().notEmpty().withMessage('Roll number is required'),
+  body('rollNo')
+    .trim()
+    .isLength({ min: 1 })
+    .withMessage('Roll number is required'),
   body('college').trim().notEmpty().withMessage('College name is required'),
   body('branch').optional().trim(),
   body('year')
@@ -39,15 +42,16 @@ const registerValidation = [
   body('email')
     .trim()
     .isEmail()
-    .normalizeEmail()
     .withMessage('Please provide a valid email address'),
   body('mobile')
     .trim()
     .matches(/^[0-9]{10}$/)
     .withMessage('Mobile number must be exactly 10 digits'),
   body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long'),
+    .isLength({ min: 8 })
+    .withMessage('Password must be at least 8 characters long')
+    .matches(/^(?=.*[A-Za-z])(?=.*\d)/)
+    .withMessage('Password must contain at least one letter and one number'),
 ];
 
 // Login validation rules

@@ -37,7 +37,9 @@ const register = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Email is already registered',
-        data: null,
+        data: {
+          errors: [{ path: 'email', msg: 'Email is already registered' }],
+        },
       });
     }
 
@@ -46,7 +48,9 @@ const register = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Roll number is already registered',
-        data: null,
+        data: {
+          errors: [{ path: 'rollNo', msg: 'Roll number is already registered' }],
+        },
       });
     }
 

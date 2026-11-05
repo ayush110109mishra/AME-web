@@ -80,20 +80,22 @@ export default function Register() {
     if (!formData.name.trim()) errs.name = 'Full name is required';
     if (!formData.email.trim()) {
       errs.email = 'Email address is required';
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email.trim())) {
       errs.email = 'Please enter a valid email address';
     }
 
     if (!formData.mobile.trim()) {
       errs.mobile = 'Mobile number is required';
-    } else if (!/^[0-9]{10}$/.test(formData.mobile)) {
-      errs.mobile = 'Must be exactly 10 digits';
+    } else if (!/^[0-9]{10}$/.test(formData.mobile.trim())) {
+      errs.mobile = 'Mobile number must be exactly 10 digits';
     }
 
     if (!formData.password) {
       errs.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      errs.password = 'Must be at least 6 characters';
+    } else if (formData.password.length < 8) {
+      errs.password = 'Password must be at least 8 characters long';
+    } else if (!/(?=.*[A-Za-z])(?=.*\d)/.test(formData.password)) {
+      errs.password = 'Password must contain at least one letter and one number';
     }
 
     if (formData.password !== formData.confirmPassword) {
@@ -127,20 +129,51 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register({
-        name: formData.name,
-        rollNo: formData.rollNo,
-        college: formData.college,
+      const payload = {
+        name: formData.name.trim(),
+        rollNo: formData.rollNo.trim(),
+        college: formData.college.trim(),
         branch: (formData.branch && formData.branch.trim()) || 'Mechanical Engineering',
         year: Number(formData.year),
         semester: Number(formData.semester),
-        email: formData.email,
-        mobile: formData.mobile,
+        email: formData.email.trim().toLowerCase(),
+        mobile: formData.mobile.trim(),
         password: formData.password,
-      });
+      };
+
+      await register(payload);
       navigate('/');
     } catch (err) {
-      // Backend error toast already displayed by AuthContext
+      // Map server validation errors to inline fields
+      const serverErrors = err.response?.data?.data?.errors;
+      const newErrors = {};
+
+      if (Array.isArray(serverErrors)) {
+        serverErrors.forEach((e) => {
+          const field = e.path || e.param;
+          if (field) {
+            newErrors[field] = e.msg;
+          }
+        });
+      }
+
+      // Check specific top-level messages
+      const msg = err.response?.data?.message || '';
+      if (msg.toLowerCase().includes('email')) {
+        newErrors.email = msg;
+      }
+      if (msg.toLowerCase().includes('roll')) {
+        newErrors.rollNo = msg;
+      }
+
+      setErrors(newErrors);
+
+      // If error belongs to Step 1 fields, jump back to Step 1
+      const step1Fields = ['name', 'email', 'mobile', 'password', 'confirmPassword'];
+      const hasStep1Error = Object.keys(newErrors).some((key) => step1Fields.includes(key));
+      if (hasStep1Error) {
+        setStep(1);
+      }
     } finally {
       setLoading(false);
     }

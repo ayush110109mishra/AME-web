@@ -87,27 +87,29 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
-              const Icon = link.icon;
-              const isActive = location.pathname === link.path;
-              return (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'text-white bg-white/10'
-                      : 'text-slate-300 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <Icon className="w-4 h-4 text-slate-400" />
-                  <span>{link.name}</span>
-                </Link>
-              );
-            })}
-          </nav>
+          {/* Desktop Navigation Links (Logged-in users only) */}
+          {isAuthenticated && (
+            <nav className="hidden md:flex items-center gap-1">
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive = location.pathname === link.path;
+                return (
+                  <Link
+                    key={link.name}
+                    to={link.path}
+                    className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'text-white bg-white/10'
+                        : 'text-slate-300 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 text-slate-400" />
+                    <span>{link.name}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
 
           {/* Desktop User Section */}
           <div className="hidden md:flex items-center gap-3">
@@ -247,64 +249,60 @@ export default function Navbar() {
               </div>
             )}
 
-            <div className="space-y-1">
-              {navLinks.map((link) => {
-                const Icon = link.icon;
-                return (
-                  <Link
-                    key={link.name}
-                    to={link.path}
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
-                  >
-                    <Icon className="w-4 h-4 text-slate-400" />
-                    <span>{link.name}</span>
-                  </Link>
-                );
-              })}
-
-              {isAuthenticated && (
-                <>
-                  <Link
-                    to="/profile"
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
-                  >
-                    <User className="w-4 h-4 text-slate-400" />
-                    <span>My Profile</span>
-                  </Link>
-
-                  {isAdmin && (
+            {isAuthenticated ? (
+              <div className="space-y-1">
+                {navLinks.map((link) => {
+                  const Icon = link.icon;
+                  return (
                     <Link
-                      to="/admin/students"
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#ff8c2b] bg-[#ff6b2c]/10 rounded-lg transition-colors"
+                      key={link.name}
+                      to={link.path}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
                     >
-                      <Shield className="w-4 h-4" />
-                      <span>Admin Portal</span>
+                      <Icon className="w-4 h-4 text-slate-400" />
+                      <span>{link.name}</span>
                     </Link>
-                  )}
+                  );
+                })}
 
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-rose-400 hover:bg-rose-500/10 transition-colors text-left"
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
+                >
+                  <User className="w-4 h-4 text-slate-400" />
+                  <span>My Profile</span>
+                </Link>
+
+                {isAdmin && (
+                  <Link
+                    to="/admin/students"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#ff8c2b] bg-[#ff6b2c]/10 rounded-lg transition-colors"
                   >
-                    <LogOut className="w-4 h-4" />
-                    <span>Sign Out</span>
-                  </button>
-                </>
-              )}
-            </div>
+                    <Shield className="w-4 h-4" />
+                    <span>Admin Portal</span>
+                  </Link>
+                )}
 
-            {!isAuthenticated && (
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-rose-400 hover:bg-rose-500/10 transition-colors text-left"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            ) : (
               <div className="pt-2 flex flex-col gap-2">
                 <Link
                   to="/login"
-                  className="w-full py-2.5 rounded-xl text-center text-sm font-semibold text-slate-200 glass-panel"
+                  className="w-full py-2.5 rounded-xl text-center text-sm font-semibold text-slate-200 glass-panel hover:bg-white/5 transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/register"
-                  className="w-full py-2.5 rounded-xl text-center text-sm font-bold bg-gradient-to-r from-[#ff6b2c] to-[#ffb020] text-slate-950 shadow-lg shadow-[#ff6b2c]/20"
+                  className="w-full py-2.5 rounded-xl text-center text-sm font-bold bg-gradient-to-r from-[#ff6b2c] to-[#ffb020] text-slate-950 shadow-lg shadow-[#ff6b2c]/20 hover:brightness-105 transition-all"
                 >
                   Join AME
                 </Link>
