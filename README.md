@@ -202,3 +202,4 @@ npm run build:client
 2. **Gallery Module:**
    - Department event media display, category filtering (Workshops, Competitions, Industrial Visits).
    - Lightbox image preview modal.
+
