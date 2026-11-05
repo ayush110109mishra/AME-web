@@ -1,0 +1,23 @@
+{
+  "name": "ame-website",
+  "version": "1.0.0",
+  "description": "AME Website (Association of Mechanical Engineering) - Monorepo",
+  "private": true,
+  "scripts": {
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "seed:admin": "npm run seed:admin --prefix server",
+    "test:server": "npm test --prefix server",
+    "build:client": "npm run build --prefix client"
+  },
+  "keywords": [
+    "ame",
+    "mechanical-engineering",
+    "mern",
+    "vite",
+    "react",
+    "express"
+  ],
+  "author": "AME Development Team",
+  "license": "ISC"
+}
