@@ -47,8 +47,8 @@ export default function Navbar() {
 
   const navLinks = [
     { name: 'Home', path: '/', icon: Home },
-    { name: 'Gallery', path: '#gallery', icon: Image },
-    { name: 'Announcements', path: '#announcements', icon: Bell },
+    { name: 'Gallery', path: '/gallery', icon: Image },
+    { name: 'Announcements', path: '/announcements', icon: Bell },
   ];
 
   const getInitials = (name) => {
@@ -167,11 +167,11 @@ export default function Navbar() {
 
                         {isAdmin && (
                           <Link
-                            to="/admin/students"
+                            to="/admin"
                             className="flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-[#ff8c2b] hover:bg-[#ff6b2c]/10 transition-colors"
                           >
                             <Shield className="w-4 h-4 text-[#ff8c2b]" />
-                            <span>Admin Portal</span>
+                            <span>Admin Panel</span>
                           </Link>
                         )}
                       </div>
@@ -275,11 +275,11 @@ export default function Navbar() {
 
                 {isAdmin && (
                   <Link
-                    to="/admin/students"
+                    to="/admin"
                     className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-[#ff8c2b] bg-[#ff6b2c]/10 rounded-lg transition-colors"
                   >
                     <Shield className="w-4 h-4" />
-                    <span>Admin Portal</span>
+                    <span>Admin Panel</span>
                   </Link>
                 )}
 

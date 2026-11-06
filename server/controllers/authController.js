@@ -214,10 +214,93 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
+// @desc    Change user password
+// @route   PUT /api/auth/change-password
+// @access  Private
+const changePassword = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: errors.array()[0].msg,
+        data: { errors: errors.array() },
+      });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user._id).select('+password');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        data: null,
+      });
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: 'Incorrect current password',
+        data: null,
+      });
+    }
+
+    const isSame = await user.comparePassword(newPassword);
+    if (isSame) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password cannot be the same as your current password',
+        data: null,
+      });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password changed successfully',
+      data: null,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get club stats for Home page
+// @route   GET /api/auth/stats
+// @access  Private
+const getClubStats = async (req, res, next) => {
+  try {
+    const [totalMembers, totalStudents, totalAdmins] = await Promise.all([
+      User.countDocuments({}),
+      User.countDocuments({ role: 'student' }),
+      User.countDocuments({ role: 'admin' }),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Club stats fetched successfully',
+      data: {
+        totalMembers,
+        totalStudents,
+        totalAdmins,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
   getMe,
   updateProfile,
+  changePassword,
+  getClubStats,
 };
 

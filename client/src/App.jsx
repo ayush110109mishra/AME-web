@@ -1,3 +1,4 @@
+/* Crafted by Ayush Mishra */
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -10,6 +11,9 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Announcements from './pages/Announcements';
+import Gallery from './pages/Gallery';
+import AdminDashboard from './pages/admin/Dashboard';
 import Students from './pages/admin/Students';
 
 // Public Route wrapper that redirects logged-in users away from /login & /register
@@ -58,7 +62,7 @@ export default function App() {
                 }
               />
 
-              {/* Protected Routes */}
+              {/* Protected Member Routes */}
               <Route
                 path="/"
                 element={
@@ -75,8 +79,32 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/announcements"
+                element={
+                  <ProtectedRoute>
+                    <Announcements />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/gallery"
+                element={
+                  <ProtectedRoute>
+                    <Gallery />
+                  </ProtectedRoute>
+                }
+              />
 
-              {/* Admin Protected Routes */}
+              {/* Protected Admin Routes */}
+              <Route
+                path="/admin"
+                element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                }
+              />
               <Route
                 path="/admin/students"
                 element={

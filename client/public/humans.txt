@@ -1,0 +1,8 @@
+/* TEAM */
+Developer: Ayush Mishra
+Portfolio / Photo Site: https://ayush110109mishra.github.io/Through-My-Frames/
+Project: Association of Mechanical Engineering (AME) Web Portal
+
+/* ABOUT */
+Built by Ayush Mishra | https://ayush110109mishra.github.io/Through-My-Frames/
+Stack: JavaScript, Node.js, Express, React, Vite, Tailwind CSS, Framer Motion, MongoDB Atlas

@@ -6,6 +6,8 @@ const {
   login,
   getMe,
   updateProfile,
+  changePassword,
+  getClubStats,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 
@@ -87,10 +89,29 @@ const updateProfileValidation = [
     .withMessage('Mobile number must be 10 digits'),
 ];
 
+// Change password validation rules
+const changePasswordValidation = [
+  body('currentPassword')
+    .notEmpty()
+    .withMessage('Current password is required'),
+  body('newPassword')
+    .isLength({ min: 8 })
+    .withMessage('New password must be at least 8 characters long')
+    .matches(/^(?=.*[A-Za-z])(?=.*\d)/)
+    .withMessage('New password must contain at least one letter and one number'),
+];
+
 router.post('/register', authLimiter, registerValidation, register);
 router.post('/login', authLimiter, loginValidation, login);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfileValidation, updateProfile);
+router.put(
+  '/change-password',
+  protect,
+  changePasswordValidation,
+  changePassword
+);
+router.get('/stats', protect, getClubStats);
 
 module.exports = router;
 

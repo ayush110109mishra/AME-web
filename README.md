@@ -1,5 +1,5 @@
 # AME Website — Association of Mechanical Engineering ⚙️
-> Official Monorepo for the College Mechanical Engineering Club Web Portal (Day 1 Implementation)
+> Official Monorepo for the College Mechanical Engineering Club Web Portal (Day 1 & Day 2 Part A Implementation)
 
 ---
 
@@ -14,42 +14,51 @@ project AME/
 │   │   ├── api/axios.js        # Axios instance with JWT interceptor & auto-401 logout
 │   │   ├── components/
 │   │   │   ├── common/         # Button, Input, Select, GlassCard
-│   │   │   ├── Navbar.jsx      # Sticky glass navbar with responsive mobile drawer & user dropdown
+│   │   │   ├── Navbar.jsx      # Sticky glass navbar, responsive mobile drawer & user dropdown
+│   │   │   ├── AnnouncementsSection.jsx # Home announcements section with mock toggle & Part B slot
 │   │   │   ├── ProtectedRoute.jsx # Route guard requiring student/member authentication
 │   │   │   └── AdminRoute.jsx     # Route guard requiring admin privileges (403 check)
 │   │   ├── context/
 │   │   │   └── AuthContext.jsx # Global user auth state, login, register, logout, profile update
+│   │   ├── mocks/
+│   │   │   └── announcements.js# Development mock data with USE_MOCK_DATA flag (default: false)
 │   │   ├── pages/
-│   │   │   ├── Home.jsx        # Member dashboard with stats & dedicated Part B announcements slot
+│   │   │   ├── Home.jsx        # Member dashboard with real stats, announcements, & gallery preview
 │   │   │   ├── Login.jsx       # Email or Roll Number login with branding panel
 │   │   │   ├── Register.jsx    # 2-step registration with progress bar & password strength meter
-│   │   │   ├── Profile.jsx     # Student profile view and permitted fields updater
+│   │   │   ├── Profile.jsx     # Student profile view, profile updater, & Change Password card
+│   │   │   ├── Announcements.jsx # Protected placeholder page (empty state for Part B)
+│   │   │   ├── Gallery.jsx     # Protected placeholder page (empty state for Part B)
 │   │   │   └── admin/
-│   │   │       └── Students.jsx# Admin directory with search, filters, pagination, & CSV export
+│   │   │       ├── Dashboard.jsx # Admin dashboard with live stats & quick navigation
+│   │   │       └── Students.jsx# Admin directory with role promotion/demotion modal & CSV export
 │   │   ├── App.jsx             # React router setup with route protection & dark toasts
 │   │   ├── index.css           # Tailwind v4 import, mechanical grid pattern, glass styling
-│   │   └── main.jsx
+│   │   └── main.jsx            # App bootstrapping with console signature badge
+│   ├── public/
+│   │   └── humans.txt          # Developer signature file
 │   ├── .env.example
 │   └── package.json
 │
 ├── server/                     # Backend (Node.js, Express, MongoDB Atlas, Mongoose)
 │   ├── config/
-│   │   └── db.js               # MongoDB connection with MongoMemoryServer dev fallback
+│   │   └── db.js               # MongoDB Atlas connection with Google/Cloudflare DNS fallback
 │   ├── controllers/
-│   │   └── authController.js   # register, login (email/rollNo), getMe, updateProfile
+│   │   └── authController.js   # register, login, getMe, updateProfile, changePassword, getClubStats
 │   ├── middleware/
 │   │   ├── auth.js             # JWT Bearer token authentication (protect)
 │   │   └── isAdmin.js          # Role check middleware (403 Forbidden for non-admins)
 │   ├── models/
 │   │   └── User.js             # Mongoose schema, bcrypt salt 10 pre-save hook, comparePassword
 │   ├── routes/
-│   │   ├── auth.js             # Auth routes with express-rate-limit & express-validator
-│   │   └── admin.js            # Admin student management & native CSV export
+│   │   ├── auth.js             # Auth routes with rate-limit, validator, change-password, stats
+│   │   └── admin.js            # Admin stats, student management, role management & native CSV export
 │   ├── scripts/
 │   │   └── seedAdmin.js        # Idempotent admin user seeder
 │   ├── utils/
 │   │   └── generateToken.js    # JWT token generator
-│   ├── testAuth.js             # Automated end-to-end API test harness
+│   ├── testAuth.js             # Day 1 automated end-to-end API test harness
+│   ├── testDay2Backend.js      # Day 2 automated backend verification suite
 │   ├── .env.example
 │   └── package.json
 │
@@ -77,9 +86,8 @@ project AME/
 Copy `server/.env.example` to `server/.env`:
 ```bash
 PORT=5000
-# To connect to MongoDB Atlas, paste your Atlas URI below:
+# MongoDB Atlas Connection URI:
 MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/ame_website?retryWrites=true&w=majority
-# (Note: If left empty or set to 'memory', it automatically runs an in-memory database for testing)
 JWT_SECRET=ame_super_secret_jwt_key_2026_secure
 JWT_EXPIRES_IN=7d
 CLIENT_URL=http://localhost:5173
@@ -140,29 +148,35 @@ npm run dev
 
 ## 🧪 Verification & Testing
 
-### Backend API Test Suite
-Run the automated test runner in `server/`:
+### Day 1 Backend API Test Suite
+Run the Day 1 automated test runner in `server/`:
 ```bash
 npm run test:server
-# or: cd server && npm test
+# or: cd server && node testAuth.js
 ```
+- Validates student registration, duplicate detection, email/rollNo login, token issuance, 403 authorization checks, and CSV export.
 
-**Test results verified:**
+### Day 2 (Part A) Backend API Test Suite
+Run the Day 2 automated test runner in `server/`:
+```bash
+npm run test:day2
+# or: cd server && node testDay2Backend.js
+```
+**Test suite coverage verified:**
 1. ✔ Admin login via email & password
-2. ✔ Student registration with validation
-3. ✔ Security: Registration body role injection prevented (forced to "student")
-4. ✔ Duplicate email rejection with 400 Bad Request
-5. ✔ Duplicate roll number rejection with 400 Bad Request
-6. ✔ Login via email
-7. ✔ Login via Roll Number (`ME2024001`)
-8. ✔ Invalid credentials rejection with generic 401
-9. ✔ Protected route `GET /api/auth/me` with Bearer token
-10. ✔ Unauthenticated request rejection with 401
-11. ✔ Restricted profile update `PUT /api/auth/profile` (name, college, year, semester, mobile)
-12. ✔ Security: Attempt to update role/rollNo ignored
-13. ✔ Student attempting admin route blocked with `403 Forbidden`
-14. ✔ Admin `GET /api/admin/students` with query filtering, search, & pagination
-15. ✔ Admin `GET /api/admin/students/export` native CSV generation & download
+2. ✔ Dynamic student registration
+3. ✔ Change password rejection on incorrect current password
+4. ✔ Change password success (`PUT /api/auth/change-password`)
+5. ✔ Immediate login verification with new password
+6. ✔ Public club stats endpoint (`GET /api/auth/stats`) returning real member count
+7. ✔ Student access to `/api/admin/stats` blocked with `403 Forbidden`
+8. ✔ Admin stats fetched successfully (`totalStudents`, `totalAdmins`, `yearWise` 1st-4th)
+9. ✔ Student blocked with `403` on role modification attempts
+10. ✔ Admin self-demotion blocked with `400 Bad Request`
+11. ✔ Last remaining admin demotion blocked with `400 Bad Request`
+12. ✔ Student promoted to Admin role successfully (`PUT /api/admin/students/:id/role`)
+13. ✔ Secondary Admin demoted back to Student successfully
+14. ✔ Password hash strictly omitted from all JSON responses
 
 ### Frontend Production Build
 Run the Vite production build in `client/`:
@@ -170,36 +184,37 @@ Run the Vite production build in `client/`:
 npm run build:client
 # or: cd client && npm run build
 ```
-- Built successfully in 2.78s without errors.
+- Built successfully with 0 errors.
 
 ---
 
-## 📋 Summary of Day 1 Deliverables
+## 🔌 Where Part B Connects (Integration Guide)
 
-| Area | Component / Feature | Status | Details |
-|---|---|---|---|
-| **Backend** | `models/User.js` | ✅ Completed | Name, unique uppercase RollNo, college, branch, year (1-4), semester (1-8), email, 10-digit mobile, select: false password, bcrypt salt 10 pre-save hook, comparePassword method. |
-| **Backend** | `controllers/authController.js` | ✅ Completed | `register`, `login` (email/rollNo), `getMe`, `updateProfile` with uniform `{ success, message, data }` responses. |
-| **Backend** | Security & Middleware | ✅ Completed | Helmet, CORS, Express-validator, Express-rate-limit (20 requests / 15 min on auth routes), JWT `protect`, `isAdmin` (403). |
-| **Backend** | `routes/admin.js` | ✅ Completed | Protected student directory (search, year/semester filter, pagination), native CSV export. |
-| **Backend** | `scripts/seedAdmin.js` | ✅ Completed | Idempotent admin creation script (`npm run seed:admin`). |
-| **Frontend** | Dark Theme & Mechanical Aesthetic | ✅ Completed | Tailwind CSS v4, Google Fonts ("Space Grotesk" & "Inter"), glassmorphism (`.glass-panel`, `.glass-input`), rotating gears animation. |
-| **Frontend** | Common UI Kit | ✅ Completed | `Button` (loading, variants, framer-motion), `Input` (icon, show/hide password, errors), `Select`, `GlassCard`. |
-| **Frontend** | `AuthContext` & `axios.js` | ✅ Completed | JWT storage in `localStorage`, session restore from `/auth/me`, automatic 401 logout, toasts. |
-| **Frontend** | `Register.jsx` | ✅ Completed | 2-Step wizard with progress bar, password strength meter, inline client validation, desktop branding panel. |
-| **Frontend** | `Login.jsx` | ✅ Completed | Single sign-on with Email or Roll Number, "Welcome back" branding split view. |
-| **Frontend** | `Home.jsx` | ✅ Completed | Personalized welcome greeting, stats cards, and dedicated reserved slot for **Part B Announcements**. |
-| **Frontend** | `Profile.jsx` | ✅ Completed | Student details display, locked immutable records, live profile updater. |
-| **Frontend** | `admin/Students.jsx` | ✅ Completed | Student table, search, year/semester filters, pagination, and one-click CSV download. |
+Part B developers (Announcements & Gallery) have ready-made integration points prepared:
+
+### 1. Home Page Announcements Slot
+- **File:** `client/src/components/AnnouncementsSection.jsx`
+- **Location:** Embedded in `client/src/pages/Home.jsx`.
+- **Note:** Comment `/* B ka AnnouncementsList yahan judega */` marks the exact container.
+- When Part B's API is ready, replace mock fetch / empty state with the announcements fetcher.
+- **Mock Toggle:** `client/src/mocks/announcements.js` has `export const USE_MOCK_DATA = false;`. Toggling this to `true` allows rendering sample announcement cards during local UI testing.
+
+### 2. Standalone Announcements Page
+- **File:** `client/src/pages/Announcements.jsx`
+- **Route:** `/announcements` (Protected, accessible to logged-in members from Navbar).
+- Currently presents a polished empty state ready to receive the full announcements feed and search/filter controls.
+
+### 3. Standalone Gallery Page
+- **File:** `client/src/pages/Gallery.jsx`
+- **Route:** `/gallery` (Protected, accessible to logged-in members from Navbar).
+- Currently presents an empty state ready to receive media albums, category filters, and image lightboxes.
+
+### 4. Admin Management Links
+- The Admin Dashboard (`client/src/pages/admin/Dashboard.jsx`) includes Quick Action cards for **Manage Announcements** and **Upload Media** pointing to `/admin/announcements` and `/admin/gallery` once created in Part B.
 
 ---
 
-## 🔮 What’s Next (Day 2 / Part B)
+## 👥 Contributors
 
-1. **Announcements Module:**
-   - Admin CRUD for publishing notices and circulars.
-   - Plug into the marked slot inside `src/pages/Home.jsx`.
-2. **Gallery Module:**
-   - Department event media display, category filtering (Workshops, Competitions, Industrial Visits).
-   - Lightbox image preview modal.
-
+- **Ayush Mishra** — Full Stack Engineering, Architecture, Security & UI Design  
+  *Portfolio:* [Through My Frames](https://ayush110109mishra.github.io/Through-My-Frames/)

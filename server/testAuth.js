@@ -62,6 +62,16 @@ const runTests = async () => {
   // 1. Seed admin
   const adminEmail = (process.env.ADMIN_EMAIL || 'admin@ame.club').toLowerCase();
   const adminPass = process.env.ADMIN_PASSWORD || 'Admin@123456';
+
+  // Cleanup past test student records to allow clean rerun
+  await User.deleteMany({
+    $or: [
+      { email: 'rahul.me@dtu.ac.in' },
+      { email: 'rahul.alternate@dtu.ac.in' },
+      { rollNo: 'ME2024001' },
+      { rollNo: 'ME2024999' }
+    ]
+  });
   let admin = await User.findOne({ email: adminEmail });
   if (!admin) {
     admin = await User.create({

@@ -5,14 +5,61 @@ const { isAdmin } = require('../middleware/isAdmin');
 
 const router = express.Router();
 
-// @desc    Get all students with filtering, search, and pagination
+// @desc    Get dashboard metrics & stats for Admin
+// @route   GET /api/admin/stats
+// @access  Private/Admin
+router.get('/stats', protect, isAdmin, async (req, res, next) => {
+  try {
+    const [
+      totalMembers,
+      totalStudents,
+      totalAdmins,
+      year1,
+      year2,
+      year3,
+      year4,
+    ] = await Promise.all([
+      User.countDocuments({}),
+      User.countDocuments({ role: 'student' }),
+      User.countDocuments({ role: 'admin' }),
+      User.countDocuments({ year: 1 }),
+      User.countDocuments({ year: 2 }),
+      User.countDocuments({ year: 3 }),
+      User.countDocuments({ year: 4 }),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Admin dashboard statistics fetched successfully',
+      data: {
+        totalMembers,
+        totalStudents,
+        totalAdmins,
+        yearWise: {
+          year1,
+          year2,
+          year3,
+          year4,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// @desc    Get all students / members with filtering, search, and pagination
 // @route   GET /api/admin/students
 // @access  Private/Admin
 router.get('/students', protect, isAdmin, async (req, res, next) => {
   try {
-    const { year, semester, search, page = 1, limit = 10 } = req.query;
+    const { year, semester, search, role, page = 1, limit = 10 } = req.query;
 
-    const query = { role: 'student' };
+    const query = {};
+
+    if (role && ['student', 'admin'].includes(role)) {
+      query.role = role;
+    }
 
     if (year) {
       query.year = Number(year);
@@ -64,12 +111,76 @@ router.get('/students', protect, isAdmin, async (req, res, next) => {
   }
 });
 
+// @desc    Update user role (promote to admin or demote to student)
+// @route   PUT /api/admin/students/:id/role
+// @access  Private/Admin
+router.put('/students/:id/role', protect, isAdmin, async (req, res, next) => {
+  try {
+    const { role } = req.body;
+    const targetUserId = req.params.id;
+
+    if (!role || !['admin', 'student'].includes(role)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid role. Must be either "admin" or "student"',
+        data: null,
+      });
+    }
+
+    const targetUser = await User.findById(targetUserId);
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found',
+        data: null,
+      });
+    }
+
+    // Rule 1: Admin cannot change/demote their own role
+    if (req.user._id.toString() === targetUser._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Admins cannot change their own role',
+        data: null,
+      });
+    }
+
+    // Rule 2: Cannot demote the last remaining admin
+    if (targetUser.role === 'admin' && role === 'student') {
+      const adminCount = await User.countDocuments({ role: 'admin' });
+      if (adminCount <= 1) {
+        return res.status(400).json({
+          success: false,
+          message: 'Cannot demote the last remaining administrator',
+          data: null,
+        });
+      }
+    }
+
+    targetUser.role = role;
+    await targetUser.save();
+
+    const sanitizedUser = targetUser.toObject();
+    delete sanitizedUser.password;
+
+    return res.status(200).json({
+      success: true,
+      message: `User role updated to ${role} successfully`,
+      data: {
+        user: sanitizedUser,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // @desc    Export students as CSV file (without external libraries)
 // @route   GET /api/admin/students/export
 // @access  Private/Admin
 router.get('/students/export', protect, isAdmin, async (req, res, next) => {
   try {
-    const students = await User.find({ role: 'student' })
+    const students = await User.find({})
       .select('-password')
       .sort({ rollNo: 1 });
 
@@ -88,6 +199,7 @@ router.get('/students/export', protect, isAdmin, async (req, res, next) => {
       'Semester',
       'Email',
       'Mobile',
+      'Role',
       'Registration Date',
     ];
 
@@ -100,6 +212,7 @@ router.get('/students/export', protect, isAdmin, async (req, res, next) => {
       escapeCsv(s.semester),
       escapeCsv(s.email),
       escapeCsv(s.mobile),
+      escapeCsv(s.role),
       escapeCsv(s.createdAt ? s.createdAt.toISOString() : ''),
     ]);
 
@@ -120,4 +233,3 @@ router.get('/students/export', protect, isAdmin, async (req, res, next) => {
 });
 
 module.exports = router;
-

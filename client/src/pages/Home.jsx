@@ -1,21 +1,43 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { motion } from 'framer-motion';
+import api from '../api/axios';
 import {
   Sparkles,
-  Layers,
   Calendar,
   Compass,
-  Bell,
   ArrowUpRight,
   ShieldCheck,
   Award,
   Users,
+  Image,
+  ArrowRight,
 } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 import Button from '../components/common/Button';
+import AnnouncementsSection from '../components/AnnouncementsSection';
 
 export default function Home() {
   const { user } = useAuth();
+  const [clubStats, setClubStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(true);
+
+  useEffect(() => {
+    const fetchClubStats = async () => {
+      try {
+        const response = await api.get('/auth/stats');
+        if (response.data && response.data.data) {
+          setClubStats(response.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load club statistics:', err.message);
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    fetchClubStats();
+  }, []);
 
   const getYearSuffix = (year) => {
     if (year === 1) return '1st';
@@ -59,21 +81,17 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="md"
-              onClick={() => {
-                document.getElementById('announcements')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              <Bell className="w-4 h-4 mr-1.5" />
-              <span>View Notice Board</span>
-            </Button>
+            <Link to="/announcements">
+              <Button variant="outline" size="md">
+                <span>View Notice Board</span>
+                <ArrowRight className="w-4 h-4 ml-1.5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </GlassCard>
 
-      {/* 3 Metric / Stats Cards (Placeholder) */}
+      {/* 3 Metric / Stats Cards (Real database count) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <GlassCard hoverEffect className="p-6 rounded-2xl relative overflow-hidden group">
           <div className="flex items-start justify-between">
@@ -82,7 +100,7 @@ export default function Home() {
                 Club Status
               </p>
               <h3 className="text-2xl font-bold text-white mt-1 group-hover:text-[#ff8c2b] transition-colors">
-                Active Member
+                {user?.role === 'admin' ? 'Club Administrator' : 'Active Member'}
               </h3>
               <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
@@ -99,18 +117,20 @@ export default function Home() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-mono uppercase tracking-wider text-slate-400">
-                Workshops & Events
+                Community Size
               </p>
-              <h3 className="text-2xl font-bold text-white mt-1 group-hover:text-[#ffb020] transition-colors">
-                4 Upcoming
+              <h3 className="text-2xl font-bold text-white mt-1 group-hover:text-[#ff8c2b] transition-colors">
+                {loadingStats
+                  ? '...'
+                  : `${clubStats?.totalMembers ?? 1} Engineers`}
               </h3>
               <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-[#ffb020]" />
-                <span>CAD Modeling, CFD & Robotics</span>
+                <Users className="w-3.5 h-3.5 text-sky-400" />
+                <span>Registered in Club Network</span>
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-[#ffb020]/10 text-[#ffb020] flex items-center justify-center border border-[#ffb020]/20">
-              <Compass className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center border border-sky-500/20">
+              <Users className="w-6 h-6" />
             </div>
           </div>
         </GlassCard>
@@ -119,59 +139,70 @@ export default function Home() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-mono uppercase tracking-wider text-slate-400">
-                Community Size
+                Workshops & Events
               </p>
-              <h3 className="text-2xl font-bold text-white mt-1 group-hover:text-[#ff8c2b] transition-colors">
-                250+ Engineers
+              <h3 className="text-2xl font-bold text-white mt-1 group-hover:text-[#ffb020] transition-colors">
+                4 Upcoming
               </h3>
               <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-sky-400" />
-                <span>Across 1st - 4th Years</span>
+                <Calendar className="w-3.5 h-3.5 text-[#ffb020]" />
+                <span>CAD, CFD & Robotics Design</span>
               </p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center border border-sky-500/20">
-              <Layers className="w-6 h-6" />
+            <div className="w-12 h-12 rounded-xl bg-[#ffb020]/10 text-[#ffb020] flex items-center justify-center border border-[#ffb020]/20">
+              <Compass className="w-6 h-6" />
             </div>
           </div>
         </GlassCard>
       </div>
 
       {/* ============================================================== */}
-      {/* 📢 ANNOUNCEMENTS SECTION SLOT (PART B COMPONENT MOUNTS HERE) */}
+      {/* 📢 ANNOUNCEMENTS SECTION (B ka AnnouncementsList yahan judega) */}
       {/* ============================================================== */}
-      <section id="announcements" className="space-y-4 pt-4">
+      <AnnouncementsSection year={user?.year} />
+
+      {/* ============================================================== */}
+      {/* 🖼️ LATEST FROM GALLERY SECTION (B ka GalleryGrid yahan judega) */}
+      {/* ============================================================== */}
+      <section id="gallery" className="space-y-4 pt-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#ff6b2c]/20 text-[#ff8c2b] flex items-center justify-center">
-              <Bell className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center border border-sky-500/30">
+              <Image className="w-4 h-4" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-white font-heading">
-                Club Announcements & Circulars
+                Latest from Gallery
               </h2>
               <p className="text-xs text-slate-400">
-                Official notices from Department Head and AME Student Leads
+                Moments from CAD competitions, industrial visits, and lab sessions
               </p>
             </div>
           </div>
-          <span className="text-xs font-mono px-2.5 py-1 rounded bg-white/5 border border-white/10 text-slate-400">
-            PART B SLOT
-          </span>
+
+          <Link
+            to="/gallery"
+            className="text-xs font-semibold text-sky-400 hover:text-sky-300 flex items-center gap-1 transition-colors"
+          >
+            <span>View Full Archive</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
-        {/* Empty state placeholder for Part B Announcements */}
+        {/* Empty state: B ka GalleryGrid yahan judega */}
         <GlassCard className="p-10 rounded-2xl text-center border-dashed border-white/15">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-[#ff8c2b]">
-            <Bell className="w-8 h-8" />
+          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-sky-400">
+            <Image className="w-7 h-7" />
           </div>
           <h3 className="text-base font-semibold text-white">
-            No Live Announcements Right Now
+            Gallery Media Coming Soon
           </h3>
           <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
-            Stay tuned! Upcoming mechanical symposium dates, CAD challenge guidelines, and guest lectures will be posted here directly.
+            High-resolution captures from college exhibitions, fabrication workshops, and guest lectures will be curated and displayed right here.
           </p>
-          <div className="mt-5 inline-flex items-center gap-1.5 text-xs font-mono text-[#ffb020] bg-[#ffb020]/10 px-3 py-1.5 rounded-full border border-[#ffb020]/20">
-            <span>Slot reserved for Part B Component integration</span>
+          <div className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-mono text-sky-400 bg-sky-500/10 px-3 py-1 rounded-full border border-sky-500/20">
+            {/* B ka GalleryGrid yahan judega */}
+            <span>Reserved for Part B Gallery Integration</span>
           </div>
         </GlassCard>
       </section>
@@ -185,14 +216,12 @@ export default function Home() {
               Keep your contact and semester information up to date.
             </p>
           </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => window.location.href = '/profile'}
-          >
-            <span>Update Profile</span>
-            <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
-          </Button>
+          <Link to="/profile">
+            <Button variant="secondary" size="sm">
+              <span>Update Profile</span>
+              <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
+            </Button>
+          </Link>
         </GlassCard>
 
         <GlassCard className="p-6 rounded-2xl border-white/10 flex items-center justify-between">
@@ -203,11 +232,10 @@ export default function Home() {
             </p>
           </div>
           <span className="text-xs font-mono text-slate-400 px-3 py-1.5 rounded bg-white/5 border border-white/10">
-            Coming Soon
+            Submissions Open Soon
           </span>
         </GlassCard>
       </div>
     </div>
   );
 }
-
