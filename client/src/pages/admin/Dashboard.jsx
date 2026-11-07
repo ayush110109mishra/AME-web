@@ -6,12 +6,10 @@ import {
   Users,
   GraduationCap,
   ShieldCheck,
-  TrendingUp,
   ArrowRight,
   Bell,
   Image,
   RefreshCw,
-  Sparkles,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import GlassCard from '../../components/common/GlassCard';

@@ -9,14 +9,11 @@ import {
   Edit2,
   ArrowLeft,
   Calendar,
-  Layers,
-  CheckCircle,
   AlertTriangle,
   X,
   RefreshCw,
   Camera,
   Star,
-  Eye,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';

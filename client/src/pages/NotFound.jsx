@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Cog, Home, ArrowLeft } from 'lucide-react';
+import { Cog, Home } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 import Button from '../components/common/Button';
 

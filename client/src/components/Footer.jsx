@@ -1,4 +1,4 @@
-import { Cog, Heart } from 'lucide-react';
+import { Cog } from 'lucide-react';
 
 export default function Footer() {
   return (

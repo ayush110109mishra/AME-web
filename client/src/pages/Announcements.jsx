@@ -11,15 +11,13 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
-  Filter,
-  User,
 } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 import Button from '../components/common/Button';
 import Skeleton from '../components/common/Skeleton';
 
 export default function Announcements() {
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState('');

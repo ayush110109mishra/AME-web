@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from '../components/common/GlassCard';
-import Button from '../components/common/Button';
 import Skeleton from '../components/common/Skeleton';
 
 export default function AlbumDetail() {

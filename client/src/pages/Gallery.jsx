@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   Calendar,
   Layers,
-  Sparkles,
   Camera,
   ArrowRight,
 } from 'lucide-react';
