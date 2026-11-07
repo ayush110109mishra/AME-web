@@ -4,6 +4,7 @@
   "description": "AME Website (Association of Mechanical Engineering) - Monorepo",
   "private": true,
   "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "npm run dev --prefix server",
     "dev:client": "npm run dev --prefix client",
     "seed:admin": "npm run seed:admin --prefix server",
@@ -19,6 +20,8 @@
     "express"
   ],
   "author": "Ayush Mishra",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^10.0.7"
+  }
 }
-
