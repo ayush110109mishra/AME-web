@@ -1,10 +1,49 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../api/axios';
 import { Bell, Calendar, Tag, ArrowRight } from 'lucide-react';
 import GlassCard from './common/GlassCard';
-import { USE_MOCK_DATA, MOCK_ANNOUNCEMENTS } from '../mocks/announcements';
+import Skeleton from './common/Skeleton';
 
 export default function AnnouncementsSection({ year }) {
-  // Flag toggle: USE_MOCK_DATA is false in production/final state
-  const announcements = USE_MOCK_DATA ? MOCK_ANNOUNCEMENTS : [];
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLatest = async () => {
+      try {
+        const response = await api.get('/announcements', {
+          params: { limit: 3 },
+        });
+        if (isMounted && response.data?.data?.announcements) {
+          setAnnouncements(response.data.data.announcements);
+        }
+      } catch (err) {
+        console.error('Failed to load announcements:', err.message);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchLatest();
+    return () => {
+      isMounted = false;
+    };
+  }, [year]);
+
+  const getCategoryColor = (cat) => {
+    switch (cat?.toLowerCase()) {
+      case 'seminar':
+        return 'bg-purple-500/15 text-purple-400 border-purple-500/30';
+      case 'workshop':
+        return 'bg-[#ff6b2c]/15 text-[#ff8c2b] border-[#ff6b2c]/30';
+      case 'intro':
+        return 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30';
+      default:
+        return 'bg-sky-500/15 text-sky-400 border-sky-500/30';
+    }
+  };
 
   return (
     <section id="announcements" className="space-y-4 pt-2">
@@ -23,18 +62,31 @@ export default function AnnouncementsSection({ year }) {
           </div>
         </div>
 
-        {USE_MOCK_DATA && (
-          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-amber-500/15 text-amber-500 border border-amber-500/30">
-            MOCK PREVIEW
-          </span>
-        )}
+        <Link
+          to="/announcements"
+          className="text-xs font-semibold text-[#ff8c2b] hover:text-[#ffb020] flex items-center gap-1 transition-colors"
+        >
+          <span>View All</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
 
-      {/* ============================================================== */}
-      {/* 📢 ANNOUNCEMENTS FEED SLOT (B ka AnnouncementsList yahan judega) */}
-      {/* ============================================================== */}
-      {announcements.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <GlassCard key={i} className="p-5 rounded-2xl space-y-3">
+              <div className="flex justify-between">
+                <Skeleton width="70px" height="22px" rounded="rounded-full" />
+                <Skeleton width="80px" height="18px" />
+              </div>
+              <Skeleton width="100%" height="24px" />
+              <Skeleton width="90%" height="16px" />
+              <Skeleton width="70%" height="16px" />
+            </GlassCard>
+          ))}
+        </div>
+      ) : announcements.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {announcements.map((item) => (
             <GlassCard
               key={item._id}
@@ -43,7 +95,11 @@ export default function AnnouncementsSection({ year }) {
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#ff6b2c]/15 text-[#ff8c2b] border border-[#ff6b2c]/30">
+                  <span
+                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border uppercase tracking-wider ${getCategoryColor(
+                      item.category
+                    )}`}
+                  >
                     <Tag className="w-3 h-3" />
                     {item.category}
                   </span>
@@ -53,10 +109,10 @@ export default function AnnouncementsSection({ year }) {
                   </span>
                 </div>
 
-                <h3 className="text-base font-bold text-[var(--text-main)] group-hover:text-[#ffb020] transition-colors">
+                <h3 className="text-base font-bold text-[var(--text-main)] group-hover:text-[#ffb020] transition-colors line-clamp-2">
                   {item.title}
                 </h3>
-                <p className="text-xs text-[var(--text-muted)] mt-1.5 leading-relaxed">
+                <p className="text-xs text-[var(--text-muted)] mt-1.5 leading-relaxed line-clamp-3">
                   {item.description}
                 </p>
               </div>
@@ -67,15 +123,18 @@ export default function AnnouncementsSection({ year }) {
                     ? 'Target: All Years'
                     : `Target: Year ${item.targetYear}`}
                 </span>
-                <span className="text-[#ff8c2b] flex items-center gap-1 font-medium group-hover:translate-x-1 transition-transform">
-                  Details <ArrowRight className="w-3.5 h-3.5" />
-                </span>
+                <Link
+                  to="/announcements"
+                  className="text-[#ff8c2b] flex items-center gap-1 font-medium group-hover:translate-x-1 transition-transform"
+                >
+                  Read More <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
             </GlassCard>
           ))}
         </div>
       ) : (
-        /* Clean empty state: B ka AnnouncementsList yahan judega */
+        /* Clean empty state */
         <GlassCard className="p-10 rounded-2xl text-center border-dashed border-[var(--border-subtle)]">
           <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-[var(--bg-surface-solid)] border border-[var(--border-subtle)] flex items-center justify-center text-[#ff8c2b]">
             <Bell className="w-7 h-7" />
@@ -86,13 +145,6 @@ export default function AnnouncementsSection({ year }) {
           <p className="text-xs text-[var(--text-muted)] mt-1 max-w-md mx-auto">
             Stay tuned! Upcoming mechanical symposium dates, CAD challenge guidelines, and guest lectures will be posted here directly.
           </p>
-
-          {import.meta.env.DEV && (
-            <div className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-mono text-[#ffb020] bg-[#ffb020]/10 px-3 py-1 rounded-full border border-[#ffb020]/20">
-              {/* B ka AnnouncementsList yahan judega */}
-              <span>Reserved for Part B Announcements Integration</span>
-            </div>
-          )}
         </GlassCard>
       )}
     </section>

@@ -10,6 +10,7 @@ import {
   Shield,
   GraduationCap,
   ArrowUpRight,
+  Hash,
 } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 import Button from '../components/common/Button';
@@ -22,6 +23,12 @@ export default function Home() {
   const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
+    // Only fetch stats for admin accounts (security rule)
+    if (user?.role !== 'admin') {
+      setLoadingStats(false);
+      return;
+    }
+
     const fetchClubStats = async () => {
       try {
         const response = await api.get('/auth/stats');
@@ -36,7 +43,7 @@ export default function Home() {
     };
 
     fetchClubStats();
-  }, []);
+  }, [user?.role]);
 
   const getYearSuffix = (year) => {
     if (year === 1) return '1st';
@@ -112,28 +119,42 @@ export default function Home() {
           </div>
         </GlassCard>
 
-        {/* (b) Registered Members */}
+        {/* (b) Registered Members (Admin) or Your Roll No (Student) */}
         <GlassCard hoverEffect className="p-6 rounded-2xl relative overflow-hidden group">
           <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs font-mono uppercase tracking-wider text-[var(--text-subtle)]">
-                Registered Members
-              </p>
-              <div className="mt-1">
-                {loadingStats ? (
-                  <Skeleton width="90px" height="32px" className="my-0.5" />
-                ) : (
-                  <h3 className="text-2xl font-bold text-[var(--text-main)] group-hover:text-[#ff8c2b] transition-colors">
-                    {clubStats?.totalMembers ?? 1}
-                  </h3>
-                )}
+            {user?.role === 'admin' ? (
+              <div>
+                <p className="text-xs font-mono uppercase tracking-wider text-[var(--text-subtle)]">
+                  Registered Members
+                </p>
+                <div className="mt-1">
+                  {loadingStats ? (
+                    <Skeleton width="90px" height="32px" className="my-0.5" />
+                  ) : (
+                    <h3 className="text-2xl font-bold text-[var(--text-main)] group-hover:text-[#ff8c2b] transition-colors">
+                      {clubStats?.totalMembers ?? 1}
+                    </h3>
+                  )}
+                </div>
+                <p className="text-xs text-[var(--text-muted)] mt-2">
+                  Total club network
+                </p>
               </div>
-              <p className="text-xs text-[var(--text-muted)] mt-2">
-                Total club network
-              </p>
-            </div>
+            ) : (
+              <div>
+                <p className="text-xs font-mono uppercase tracking-wider text-[var(--text-subtle)]">
+                  Your Roll No
+                </p>
+                <h3 className="text-2xl font-bold text-[var(--text-main)] mt-1 font-mono text-[#ff8c2b]">
+                  {user?.rollNo || 'N/A'}
+                </h3>
+                <p className="text-xs text-[var(--text-muted)] mt-2 truncate max-w-[200px]">
+                  {user?.college || 'Registered Student'}
+                </p>
+              </div>
+            )}
             <div className="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center border border-sky-500/20">
-              <Users className="w-6 h-6" />
+              {user?.role === 'admin' ? <Users className="w-6 h-6" /> : <Hash className="w-6 h-6" />}
             </div>
           </div>
         </GlassCard>

@@ -8,7 +8,8 @@
     "dev": "nodemon server.js",
     "seed:admin": "node scripts/seedAdmin.js",
     "test": "node testAuth.js",
-    "test:day2": "node testDay2Backend.js"
+    "test:day2": "node testDay2Backend.js",
+    "test:announcements": "node testAnnouncements.js"
   },
   "keywords": [],
   "author": "Ayush Mishra",

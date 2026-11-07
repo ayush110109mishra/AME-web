@@ -10,6 +10,7 @@ const {
   getClubStats,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
+const { isAdmin } = require('../middleware/isAdmin');
 
 const router = express.Router();
 
@@ -111,7 +112,7 @@ router.put(
   changePasswordValidation,
   changePassword
 );
-router.get('/stats', protect, getClubStats);
+router.get('/stats', protect, isAdmin, getClubStats);
 
 module.exports = router;
 

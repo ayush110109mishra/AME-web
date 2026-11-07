@@ -17,6 +17,7 @@ import Announcements from './pages/Announcements';
 import Gallery from './pages/Gallery';
 import AdminDashboard from './pages/admin/Dashboard';
 import Students from './pages/admin/Students';
+import AdminAnnouncements from './pages/admin/Announcements';
 import NotFound from './pages/NotFound';
 
 // Public Route wrapper that redirects logged-in users away from /login & /register
@@ -114,6 +115,14 @@ export default function App() {
                   element={
                     <AdminRoute>
                       <Students />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/announcements"
+                  element={
+                    <AdminRoute>
+                      <AdminAnnouncements />
                     </AdminRoute>
                   }
                 />

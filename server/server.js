@@ -13,6 +13,7 @@ const connectDB = require('./config/db');
 // Route imports
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
+const announcementRoutes = require('./routes/announcements');
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.get('/api/health', (req, res) => {
 // Mount Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/announcements', announcementRoutes);
 
 // Catch 404
 app.use((req, res, next) => {
