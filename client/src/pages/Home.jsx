@@ -4,17 +4,16 @@ import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import {
   Sparkles,
-  Calendar,
-  Compass,
-  ArrowUpRight,
-  ShieldCheck,
-  Award,
   Users,
   Image,
   ArrowRight,
+  Shield,
+  GraduationCap,
+  ArrowUpRight,
 } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 import Button from '../components/common/Button';
+import Skeleton from '../components/common/Skeleton';
 import AnnouncementsSection from '../components/AnnouncementsSection';
 
 export default function Home() {
@@ -43,13 +42,13 @@ export default function Home() {
     if (year === 1) return '1st';
     if (year === 2) return '2nd';
     if (year === 3) return '3rd';
-    return `${year}th`;
+    return `${year || 1}th`;
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 bg-grid-pattern">
       {/* Hero Welcome Banner */}
-      <GlassCard className="p-6 sm:p-10 rounded-3xl relative overflow-hidden border-[#ff6b2c]/20 bg-gradient-to-r from-[#0f172a] via-[#131f38] to-[#0f172a]">
+      <GlassCard className="p-6 sm:p-10 rounded-3xl relative overflow-hidden border-[var(--border-subtle)] bg-[var(--bg-surface)]">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#ff6b2c]/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -59,23 +58,23 @@ export default function Home() {
               <span>MECHANICAL CLUB PORTAL</span>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight font-heading">
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-[var(--text-main)] tracking-tight font-heading">
               Welcome, {user?.name || 'Engineer'} 👋
             </h1>
 
-            <p className="mt-2 text-sm sm:text-base text-slate-300 flex items-center gap-2 flex-wrap">
+            <p className="mt-2 text-sm sm:text-base text-[var(--text-muted)] flex items-center gap-2 flex-wrap">
               <span className="font-semibold text-[#ffb020]">
                 {getYearSuffix(user?.year)} Year
               </span>
-              <span className="text-slate-500">•</span>
+              <span className="text-[var(--text-subtle)]">•</span>
               <span>Semester {user?.semester}</span>
-              <span className="text-slate-500">•</span>
-              <span className="text-slate-400 font-mono text-xs px-2 py-0.5 rounded bg-white/5 border border-white/10">
+              <span className="text-[var(--text-subtle)]">•</span>
+              <span className="text-[var(--text-muted)] font-mono text-xs px-2 py-0.5 rounded bg-[var(--bg-surface-solid)] border border-[var(--border-subtle)]">
                 Roll: {user?.rollNo}
               </span>
             </p>
 
-            <p className="mt-3 text-xs sm:text-sm text-slate-400 max-w-xl">
+            <p className="mt-3 text-xs sm:text-sm text-[var(--text-subtle)] max-w-xl">
               {user?.college} · {user?.branch}
             </p>
           </div>
@@ -91,42 +90,46 @@ export default function Home() {
         </div>
       </GlassCard>
 
-      {/* 3 Metric / Stats Cards (Real database count) */}
+      {/* 3 Real Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* (a) Your Role */}
         <GlassCard hoverEffect className="p-6 rounded-2xl relative overflow-hidden group">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-mono uppercase tracking-wider text-slate-400">
-                Club Status
+              <p className="text-xs font-mono uppercase tracking-wider text-[var(--text-subtle)]">
+                Your Role
               </p>
-              <h3 className="text-2xl font-bold text-white mt-1 group-hover:text-[#ff8c2b] transition-colors">
-                {user?.role === 'admin' ? 'Club Administrator' : 'Active Member'}
+              <h3 className="text-2xl font-bold text-[var(--text-main)] mt-1 group-hover:text-[#ff8c2b] transition-colors">
+                {user?.role === 'admin' ? 'Admin' : 'Member'}
               </h3>
-              <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Verified Department Credentials</span>
+              <p className="text-xs text-[var(--text-muted)] mt-2">
+                Active access
               </p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#ff6b2c]/10 text-[#ff8c2b] flex items-center justify-center border border-[#ff6b2c]/20">
-              <Award className="w-6 h-6" />
+              <Shield className="w-6 h-6" />
             </div>
           </div>
         </GlassCard>
 
+        {/* (b) Registered Members */}
         <GlassCard hoverEffect className="p-6 rounded-2xl relative overflow-hidden group">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-mono uppercase tracking-wider text-slate-400">
-                Community Size
+              <p className="text-xs font-mono uppercase tracking-wider text-[var(--text-subtle)]">
+                Registered Members
               </p>
-              <h3 className="text-2xl font-bold text-white mt-1 group-hover:text-[#ff8c2b] transition-colors">
-                {loadingStats
-                  ? '...'
-                  : `${clubStats?.totalMembers ?? 1} Engineers`}
-              </h3>
-              <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-sky-400" />
-                <span>Registered in Club Network</span>
+              <div className="mt-1">
+                {loadingStats ? (
+                  <Skeleton width="90px" height="32px" className="my-0.5" />
+                ) : (
+                  <h3 className="text-2xl font-bold text-[var(--text-main)] group-hover:text-[#ff8c2b] transition-colors">
+                    {clubStats?.totalMembers ?? 1}
+                  </h3>
+                )}
+              </div>
+              <p className="text-xs text-[var(--text-muted)] mt-2">
+                Total club network
               </p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center border border-sky-500/20">
@@ -135,22 +138,22 @@ export default function Home() {
           </div>
         </GlassCard>
 
+        {/* (c) Your Year */}
         <GlassCard hoverEffect className="p-6 rounded-2xl relative overflow-hidden group">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-mono uppercase tracking-wider text-slate-400">
-                Workshops & Events
+              <p className="text-xs font-mono uppercase tracking-wider text-[var(--text-subtle)]">
+                Your Year
               </p>
-              <h3 className="text-2xl font-bold text-white mt-1 group-hover:text-[#ffb020] transition-colors">
-                4 Upcoming
+              <h3 className="text-2xl font-bold text-[var(--text-main)] mt-1 group-hover:text-[#ffb020] transition-colors">
+                {getYearSuffix(user?.year)} Year · Sem {user?.semester}
               </h3>
-              <p className="text-xs text-slate-400 mt-2 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-[#ffb020]" />
-                <span>CAD, CFD & Robotics Design</span>
+              <p className="text-xs text-[var(--text-muted)] mt-2">
+                {user?.branch || 'Mechanical Engineering'}
               </p>
             </div>
             <div className="w-12 h-12 rounded-xl bg-[#ffb020]/10 text-[#ffb020] flex items-center justify-center border border-[#ffb020]/20">
-              <Compass className="w-6 h-6" />
+              <GraduationCap className="w-6 h-6" />
             </div>
           </div>
         </GlassCard>
@@ -171,11 +174,11 @@ export default function Home() {
               <Image className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white font-heading">
+              <h2 className="text-xl font-bold text-[var(--text-main)] font-heading">
                 Latest from Gallery
               </h2>
-              <p className="text-xs text-slate-400">
-                Moments from CAD competitions, industrial visits, and lab sessions
+              <p className="text-xs text-[var(--text-muted)]">
+                Event photos and mechanical project highlights
               </p>
             </div>
           </div>
@@ -189,30 +192,33 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Empty state: B ka GalleryGrid yahan judega */}
-        <GlassCard className="p-10 rounded-2xl text-center border-dashed border-white/15">
-          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-sky-400">
+        {/* Clean Empty State */}
+        <GlassCard className="p-10 rounded-2xl text-center border-dashed border-[var(--border-subtle)]">
+          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-[var(--bg-surface-solid)] border border-[var(--border-subtle)] flex items-center justify-center text-sky-400">
             <Image className="w-7 h-7" />
           </div>
-          <h3 className="text-base font-semibold text-white">
-            Gallery Media Coming Soon
+          <h3 className="text-base font-semibold text-[var(--text-main)]">
+            Gallery Media
           </h3>
-          <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
-            High-resolution captures from college exhibitions, fabrication workshops, and guest lectures will be curated and displayed right here.
+          <p className="text-xs text-[var(--text-muted)] mt-1 max-w-md mx-auto">
+            Event photos will appear here soon.
           </p>
-          <div className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-mono text-sky-400 bg-sky-500/10 px-3 py-1 rounded-full border border-sky-500/20">
-            {/* B ka GalleryGrid yahan judega */}
-            <span>Reserved for Part B Gallery Integration</span>
-          </div>
+
+          {import.meta.env.DEV && (
+            <div className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-mono text-sky-400 bg-sky-500/10 px-3 py-1 rounded-full border border-sky-500/20">
+              {/* B ka GalleryGrid yahan judega */}
+              <span>Reserved for Part B Gallery Integration</span>
+            </div>
+          )}
         </GlassCard>
       </section>
 
       {/* Quick Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
-        <GlassCard className="p-6 rounded-2xl border-white/10 flex items-center justify-between">
+        <GlassCard className="p-6 rounded-2xl border-[var(--border-subtle)] flex items-center justify-between">
           <div>
-            <h4 className="text-sm font-bold text-white">Student Profile Settings</h4>
-            <p className="text-xs text-slate-400 mt-1">
+            <h4 className="text-sm font-bold text-[var(--text-main)]">Student Profile Settings</h4>
+            <p className="text-xs text-[var(--text-muted)] mt-1">
               Keep your contact and semester information up to date.
             </p>
           </div>
@@ -224,14 +230,14 @@ export default function Home() {
           </Link>
         </GlassCard>
 
-        <GlassCard className="p-6 rounded-2xl border-white/10 flex items-center justify-between">
+        <GlassCard className="p-6 rounded-2xl border-[var(--border-subtle)] flex items-center justify-between">
           <div>
-            <h4 className="text-sm font-bold text-white">Annual Tech Magazine</h4>
-            <p className="text-xs text-slate-400 mt-1">
+            <h4 className="text-sm font-bold text-[var(--text-main)]">Annual Tech Magazine</h4>
+            <p className="text-xs text-[var(--text-muted)] mt-1">
               Submit articles, projects, and research papers for AME 2026.
             </p>
           </div>
-          <span className="text-xs font-mono text-slate-400 px-3 py-1.5 rounded bg-white/5 border border-white/10">
+          <span className="text-xs font-mono text-[var(--text-subtle)] px-3 py-1.5 rounded bg-[var(--bg-surface-solid)] border border-[var(--border-subtle)]">
             Submissions Open Soon
           </span>
         </GlassCard>

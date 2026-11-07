@@ -26,13 +26,13 @@ export default function Button({
     primary:
       'bg-gradient-to-r from-[#ff6b2c] via-[#ff8c2b] to-[#ffb020] text-slate-950 font-semibold shadow-lg shadow-[#ff6b2c]/20 hover:shadow-[#ff6b2c]/40 hover:brightness-105 active:scale-[0.98]',
     secondary:
-      'bg-slate-800/80 hover:bg-slate-750 text-slate-100 border border-white/10 hover:border-white/20 active:scale-[0.98]',
+      'bg-[var(--bg-surface-solid)] hover:bg-[var(--bg-surface-hover)] text-[var(--text-main)] border border-[var(--border-subtle)] hover:border-[var(--border-hover)] shadow-sm active:scale-[0.98]',
     outline:
-      'bg-transparent border border-[#ff6b2c]/50 text-[#ff8c2b] hover:bg-[#ff6b2c]/10 active:scale-[0.98]',
+      'bg-transparent border border-[#ff6b2c]/60 text-[#ff8c2b] hover:bg-[#ff6b2c]/10 active:scale-[0.98]',
     ghost:
-      'bg-transparent text-slate-300 hover:text-white hover:bg-white/5 active:scale-[0.98]',
+      'bg-transparent text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface-hover)] active:scale-[0.98]',
     danger:
-      'bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30 active:scale-[0.98]',
+      'bg-rose-500/15 text-rose-500 border border-rose-500/30 hover:bg-rose-500/25 active:scale-[0.98]',
   };
 
   return (
@@ -58,4 +58,3 @@ export default function Button({
     </motion.button>
   );
 }
-

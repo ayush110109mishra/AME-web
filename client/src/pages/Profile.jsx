@@ -61,7 +61,7 @@ export default function Profile() {
   const passwordStrength = calculatePasswordStrength(passData.newPassword);
 
   const getStrengthLabel = (score) => {
-    if (score === 0) return { text: 'Empty', color: 'bg-slate-700' };
+    if (score === 0) return { text: 'Empty', color: 'bg-slate-500' };
     if (score < 50) return { text: 'Weak', color: 'bg-rose-500' };
     if (score < 75) return { text: 'Medium', color: 'bg-amber-500' };
     return { text: 'Strong', color: 'bg-emerald-500' };
@@ -99,20 +99,19 @@ export default function Profile() {
   const validatePassword = () => {
     const errs = {};
     if (!passData.currentPassword) {
-      errs.currentPassword = 'Current password is required';
+      errs.currentPassword = 'Enter your current password';
     }
     if (!passData.newPassword) {
       errs.newPassword = 'New password is required';
     } else if (passData.newPassword.length < 8) {
-      errs.newPassword = 'Must be at least 8 characters long';
+      errs.newPassword = 'Password must be at least 8 characters long';
     } else if (!/(?=.*[A-Za-z])(?=.*\d)/.test(passData.newPassword)) {
-      errs.newPassword = 'Must contain at least one letter and one number';
+      errs.newPassword = 'Password must contain both letters and numbers';
     }
 
     if (passData.newPassword !== passData.confirmNewPassword) {
-      errs.confirmNewPassword = 'New passwords do not match';
+      errs.confirmNewPassword = 'Passwords do not match';
     }
-
     setPassErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -123,16 +122,18 @@ export default function Profile() {
 
     setLoading(true);
     try {
-      await updateProfile({
-        name: formData.name,
-        college: formData.college,
+      const payload = {
+        name: formData.name.trim(),
+        college: formData.college.trim(),
         branch: formData.branch?.trim() || 'Mechanical Engineering',
-        year: Number(formData.year),
-        semester: Number(formData.semester),
-        mobile: formData.mobile,
-      });
+        year: parseInt(formData.year, 10),
+        semester: parseInt(formData.semester, 10),
+        mobile: formData.mobile.trim(),
+      };
+
+      await updateProfile(payload);
     } catch (err) {
-      // Toast handled by AuthContext
+      // Handled by AuthContext toast
     } finally {
       setLoading(false);
     }
@@ -180,14 +181,14 @@ export default function Profile() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 bg-grid-pattern">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white font-heading">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-main)] font-heading">
             Student Profile
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1">
             Manage your personal credentials, contact info, and security credentials.
           </p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-mono">
           <CheckCircle className="w-3.5 h-3.5" />
           <span className="uppercase">{user?.role} Account</span>
         </div>
@@ -206,48 +207,48 @@ export default function Profile() {
                   .toUpperCase()
                   .slice(0, 2)}
               </div>
-              <div className="absolute bottom-0 right-0 p-1.5 rounded-full bg-[#0a0e1a] border border-white/10 text-[#ff8c2b]">
+              <div className="absolute bottom-0 right-0 p-1.5 rounded-full bg-[var(--bg-main)] border border-[var(--border-subtle)] text-[#ff8c2b]">
                 <Shield className="w-4 h-4" />
               </div>
             </div>
 
             <div>
-              <h3 className="text-lg font-bold text-white font-heading">
+              <h3 className="text-lg font-bold text-[var(--text-main)] font-heading">
                 {user?.name}
               </h3>
-              <p className="text-xs text-slate-400 font-mono mt-0.5">
+              <p className="text-xs text-[var(--text-subtle)] font-mono mt-0.5">
                 Roll No: {user?.rollNo}
               </p>
             </div>
 
-            <div className="w-full pt-4 border-t border-white/10 space-y-2 text-left text-xs">
-              <div className="flex items-center justify-between text-slate-400">
+            <div className="w-full pt-4 border-t border-[var(--border-subtle)] space-y-2 text-left text-xs">
+              <div className="flex items-center justify-between text-[var(--text-muted)]">
                 <span>Department</span>
-                <span className="text-slate-200 font-medium">
+                <span className="text-[var(--text-main)] font-medium">
                   {user?.branch}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-slate-400">
+              <div className="flex items-center justify-between text-[var(--text-muted)]">
                 <span>Current Year</span>
-                <span className="text-slate-200 font-medium">
+                <span className="text-[var(--text-main)] font-medium">
                   Year {user?.year}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-slate-400">
+              <div className="flex items-center justify-between text-[var(--text-muted)]">
                 <span>Semester</span>
-                <span className="text-slate-200 font-medium">
+                <span className="text-[var(--text-main)] font-medium">
                   Sem {user?.semester}
                 </span>
               </div>
             </div>
           </GlassCard>
 
-          <GlassCard className="p-5 rounded-2xl border-white/10 space-y-2">
+          <GlassCard className="p-5 rounded-2xl border-[var(--border-subtle)] space-y-2">
             <div className="flex items-center gap-2 text-xs font-semibold text-[#ff8c2b]">
               <ShieldAlert className="w-4 h-4" />
               <span>Security Advisory</span>
             </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
+            <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
               Keep your credentials confidential. Avoid sharing your password or roll number with other members.
             </p>
           </GlassCard>
@@ -257,9 +258,9 @@ export default function Profile() {
         <div className="lg:col-span-2 space-y-6">
           {/* Editable Personal Details */}
           <GlassCard className="p-6 sm:p-8 rounded-2xl">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-bold text-[var(--text-main)] mb-4 flex items-center justify-between">
               <span>Personal & Academic Details</span>
-              <span className="text-xs text-slate-400 font-normal">
+              <span className="text-xs text-[var(--text-subtle)] font-normal">
                 (Saved to database)
               </span>
             </h3>
@@ -346,13 +347,13 @@ export default function Profile() {
               </div>
 
               {/* Locked System Fields */}
-              <div className="pt-4 border-t border-white/10 space-y-3">
-                <p className="text-xs font-semibold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider">
-                  <Lock className="w-3.5 h-3.5 text-slate-500" />
+              <div className="pt-4 border-t border-[var(--border-subtle)] space-y-3">
+                <p className="text-xs font-semibold text-[var(--text-subtle)] flex items-center gap-1.5 uppercase tracking-wider">
+                  <Lock className="w-3.5 h-3.5" />
                   <span>Immutable System Records</span>
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 opacity-70">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 opacity-75">
                   <Input
                     label="Official Email"
                     name="email"
@@ -385,13 +386,13 @@ export default function Profile() {
           </GlassCard>
 
           {/* Change Password Card */}
-          <GlassCard className="p-6 sm:p-8 rounded-2xl border-white/10">
+          <GlassCard className="p-6 sm:p-8 rounded-2xl border-[var(--border-subtle)]">
             <div className="mb-4">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <h3 className="text-lg font-bold text-[var(--text-main)] flex items-center gap-2">
                 <Key className="w-5 h-5 text-[#ff8c2b]" />
                 <span>Change Password</span>
               </h3>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-[var(--text-muted)] mt-1">
                 Password must be at least 8 characters long and contain both letters and numbers.
               </p>
             </div>
@@ -437,14 +438,14 @@ export default function Profile() {
 
               {/* Password strength indicator */}
               {passData.newPassword && (
-                <div className="space-y-1.5 p-3 rounded-xl bg-white/[0.03] border border-white/5">
+                <div className="space-y-1.5 p-3 rounded-xl bg-[var(--bg-main)] border border-[var(--border-subtle)]">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400">Password Strength</span>
-                    <span className="font-semibold text-slate-200">
+                    <span className="text-[var(--text-muted)]">Password Strength</span>
+                    <span className="font-semibold text-[var(--text-main)]">
                       {getStrengthLabel(passwordStrength).text}
                     </span>
                   </div>
-                  <div className="w-full bg-slate-800 rounded-full h-1 overflow-hidden">
+                  <div className="w-full bg-[var(--bg-surface-solid)] rounded-full h-1 overflow-hidden border border-[var(--border-subtle)]">
                     <div
                       className={`h-full transition-all duration-300 ${
                         getStrengthLabel(passwordStrength).color

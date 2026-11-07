@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { motion } from 'framer-motion';
 import {
   UserCheck,
   Lock,
@@ -62,9 +61,9 @@ export default function Login() {
 
       <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch z-10">
         {/* Left Branding Panel (Hidden on Mobile) */}
-        <div className="hidden lg:flex lg:col-span-5 flex-col justify-between p-8 rounded-3xl glass-panel border-white/10 relative overflow-hidden bg-gradient-to-b from-[#0f172a]/90 via-[#0a0e1a]/90 to-[#0a0e1a]/95">
+        <div className="hidden lg:flex lg:col-span-5 flex-col justify-between p-8 rounded-3xl glass-panel border-[var(--border-subtle)] relative overflow-hidden bg-[var(--bg-surface-solid)]">
           <div className="absolute -right-20 -top-20 opacity-10 pointer-events-none">
-            <Cog className="w-80 h-80 text-white animate-spin-slow" />
+            <Cog className="w-80 h-80 text-[var(--text-main)] animate-spin-slow" />
           </div>
 
           <div>
@@ -73,42 +72,42 @@ export default function Login() {
               <span>MEMBER AUTHENTICATION</span>
             </div>
 
-            <h1 className="text-3xl font-extrabold text-white leading-tight font-heading">
+            <h1 className="text-3xl font-extrabold text-[var(--text-main)] leading-tight font-heading">
               Powering the <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6b2c] via-[#ff8c2b] to-[#ffb020]">
                 Engineering Spirit.
               </span>
             </h1>
 
-            <p className="mt-4 text-sm text-slate-300 leading-relaxed">
+            <p className="mt-4 text-sm text-[var(--text-muted)] leading-relaxed">
               Sign in to manage your club portfolio, register for upcoming design competitions, and explore student updates.
             </p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-2">
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-200">
+          <div className="p-4 rounded-2xl bg-[var(--bg-main)] border border-[var(--border-subtle)] space-y-2">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text-main)]">
               <Sparkles className="w-4 h-4 text-[#ffb020]" />
               <span>Single Sign-On Convenience</span>
             </div>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-[var(--text-muted)]">
               Use either your registered college email or your department Roll Number.
             </p>
           </div>
 
-          <div className="pt-6 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+          <div className="pt-6 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--text-subtle)]">
             <span>Association of Mechanical Engineering</span>
-            <Shield className="w-4 h-4 text-slate-500" />
+            <Shield className="w-4 h-4 text-[var(--text-subtle)]" />
           </div>
         </div>
 
         {/* Right Login Card */}
         <div className="lg:col-span-7 flex flex-col justify-center">
-          <GlassCard className="p-6 sm:p-10 rounded-3xl border-white/10 shadow-2xl relative">
+          <GlassCard className="p-6 sm:p-10 rounded-3xl border-[var(--border-subtle)] shadow-2xl relative">
             <div className="mb-6">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white font-heading">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-main)] font-heading">
                 Welcome back 👋
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1">
+              <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1">
                 Enter your credentials to access your student dashboard.
               </p>
             </div>
@@ -156,8 +155,8 @@ export default function Login() {
               </div>
             </form>
 
-            <div className="mt-8 pt-5 border-t border-white/10 text-center">
-              <p className="text-xs text-slate-400">
+            <div className="mt-8 pt-5 border-t border-[var(--border-subtle)] text-center">
+              <p className="text-xs text-[var(--text-muted)]">
                 Don’t have an account yet?{' '}
                 <Link
                   to="/register"
@@ -173,4 +172,3 @@ export default function Login() {
     </div>
   );
 }
-

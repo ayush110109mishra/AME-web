@@ -14,17 +14,17 @@ export default function AnnouncementsSection({ year }) {
             <Bell className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white font-heading">
+            <h2 className="text-xl font-bold text-[var(--text-main)] font-heading">
               Club Announcements & Circulars
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[var(--text-muted)]">
               Department updates, workshop schedules, and competitions
             </p>
           </div>
         </div>
 
         {USE_MOCK_DATA && (
-          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">
+          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-amber-500/15 text-amber-500 border border-amber-500/30">
             MOCK PREVIEW
           </span>
         )}
@@ -47,21 +47,21 @@ export default function AnnouncementsSection({ year }) {
                     <Tag className="w-3 h-3" />
                     {item.category}
                   </span>
-                  <span className="text-[11px] text-slate-400 font-mono flex items-center gap-1">
+                  <span className="text-[11px] text-[var(--text-subtle)] font-mono flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
                     {new Date(item.createdAt).toLocaleDateString()}
                   </span>
                 </div>
 
-                <h3 className="text-base font-bold text-white group-hover:text-[#ffb020] transition-colors">
+                <h3 className="text-base font-bold text-[var(--text-main)] group-hover:text-[#ffb020] transition-colors">
                   {item.title}
                 </h3>
-                <p className="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                <p className="text-xs text-[var(--text-muted)] mt-1.5 leading-relaxed">
                   {item.description}
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+              <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs text-[var(--text-subtle)]">
                 <span>
                   {item.targetYear === 0
                     ? 'Target: All Years'
@@ -76,20 +76,23 @@ export default function AnnouncementsSection({ year }) {
         </div>
       ) : (
         /* Clean empty state: B ka AnnouncementsList yahan judega */
-        <GlassCard className="p-10 rounded-2xl text-center border-dashed border-white/15">
-          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-[#ff8c2b]">
+        <GlassCard className="p-10 rounded-2xl text-center border-dashed border-[var(--border-subtle)]">
+          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-[var(--bg-surface-solid)] border border-[var(--border-subtle)] flex items-center justify-center text-[#ff8c2b]">
             <Bell className="w-7 h-7" />
           </div>
-          <h3 className="text-base font-semibold text-white">
+          <h3 className="text-base font-semibold text-[var(--text-main)]">
             No Live Announcements Right Now
           </h3>
-          <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+          <p className="text-xs text-[var(--text-muted)] mt-1 max-w-md mx-auto">
             Stay tuned! Upcoming mechanical symposium dates, CAD challenge guidelines, and guest lectures will be posted here directly.
           </p>
-          <div className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-mono text-[#ffb020] bg-[#ffb020]/10 px-3 py-1 rounded-full border border-[#ffb020]/20">
-            {/* B ka AnnouncementsList yahan judega */}
-            <span>Reserved for Part B Announcements Integration</span>
-          </div>
+
+          {import.meta.env.DEV && (
+            <div className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-mono text-[#ffb020] bg-[#ffb020]/10 px-3 py-1 rounded-full border border-[#ffb020]/20">
+              {/* B ka AnnouncementsList yahan judega */}
+              <span>Reserved for Part B Announcements Integration</span>
+            </div>
+          )}
         </GlassCard>
       )}
     </section>
