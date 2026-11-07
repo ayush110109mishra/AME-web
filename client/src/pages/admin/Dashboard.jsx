@@ -252,7 +252,7 @@ export default function AdminDashboard() {
           </GlassCard>
         </Link>
 
-        <Link to="/gallery" className="block group">
+        <Link to="/admin/gallery" className="block group">
           <GlassCard hoverEffect className="p-6 rounded-2xl h-full flex flex-col justify-between">
             <div>
               <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center mb-3">
@@ -262,11 +262,11 @@ export default function AdminDashboard() {
                 Photo Gallery Archive
               </h4>
               <p className="text-xs text-[var(--text-muted)] mt-1">
-                Manage mechanical symposium galleries, industrial tour pictures, and event highlights.
+                Upload and organize event photographs, create collections, and manage media archives.
               </p>
             </div>
             <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-semibold text-sky-400">
-              <span>Explore Gallery</span>
+              <span>Manage Gallery</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </div>
           </GlassCard>

@@ -9,7 +9,8 @@
     "seed:admin": "node scripts/seedAdmin.js",
     "test": "node testAuth.js",
     "test:day2": "node testDay2Backend.js",
-    "test:announcements": "node testAnnouncements.js"
+    "test:announcements": "node testAnnouncements.js",
+    "test:gallery": "node testGallery.js"
   },
   "keywords": [],
   "author": "Ayush Mishra",
@@ -17,6 +18,7 @@
   "type": "commonjs",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.11.0",
     "cors": "^2.8.6",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
@@ -24,7 +26,8 @@
     "express-validator": "^7.3.2",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.12.0"
+    "mongoose": "^9.12.0",
+    "multer": "^2.5.0"
   },
   "devDependencies": {
     "mongodb-memory-server": "^11.3.0",

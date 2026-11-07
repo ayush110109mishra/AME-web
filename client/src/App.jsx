@@ -15,9 +15,11 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Announcements from './pages/Announcements';
 import Gallery from './pages/Gallery';
+import AlbumDetail from './pages/AlbumDetail';
 import AdminDashboard from './pages/admin/Dashboard';
 import Students from './pages/admin/Students';
 import AdminAnnouncements from './pages/admin/Announcements';
+import AdminGallery from './pages/admin/Gallery';
 import NotFound from './pages/NotFound';
 
 // Public Route wrapper that redirects logged-in users away from /login & /register
@@ -100,6 +102,14 @@ export default function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/gallery/:id"
+                  element={
+                    <ProtectedRoute>
+                      <AlbumDetail />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Protected Admin Routes */}
                 <Route
@@ -123,6 +133,14 @@ export default function App() {
                   element={
                     <AdminRoute>
                       <AdminAnnouncements />
+                    </AdminRoute>
+                  }
+                />
+                <Route
+                  path="/admin/gallery"
+                  element={
+                    <AdminRoute>
+                      <AdminGallery />
                     </AdminRoute>
                   }
                 />

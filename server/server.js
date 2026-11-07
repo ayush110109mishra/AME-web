@@ -14,6 +14,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const adminRoutes = require('./routes/admin');
 const announcementRoutes = require('./routes/announcements');
+const galleryRoutes = require('./routes/gallery');
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/announcements', announcementRoutes);
+app.use('/api/gallery', galleryRoutes);
 
 // Catch 404
 app.use((req, res, next) => {

@@ -147,14 +147,22 @@ const run = async () => {
   }
   console.log('✔ Verified login with new password');
 
-  // 5. Test Club Stats for Home Page
-  const clubStatsRes = await request('GET', '/api/auth/stats', {
+  // 5. Test Club Stats (Day 3 rule: GET /api/auth/stats is restricted to admin only)
+  const studentClubStats = await request('GET', '/api/auth/stats', {
     Authorization: `Bearer ${studentToken}`,
   });
-  if (clubStatsRes.statusCode !== 200 || typeof clubStatsRes.body.data?.totalMembers !== 'number') {
-    throw new Error('Club stats failed: ' + JSON.stringify(clubStatsRes.body));
+  if (studentClubStats.statusCode !== 403) {
+    throw new Error('Student should be blocked with 403 on /api/auth/stats');
   }
-  console.log('✔ GET /api/auth/stats passed, totalMembers:', clubStatsRes.body.data.totalMembers);
+  console.log('✔ Student access to /api/auth/stats blocked with 403 (Day 3 privacy rule)');
+
+  const adminClubStats = await request('GET', '/api/auth/stats', {
+    Authorization: `Bearer ${adminToken}`,
+  });
+  if (adminClubStats.statusCode !== 200 || typeof adminClubStats.body.data?.totalMembers !== 'number') {
+    throw new Error('Admin club stats failed: ' + JSON.stringify(adminClubStats.body));
+  }
+  console.log('✔ Admin GET /api/auth/stats passed, totalMembers:', adminClubStats.body.data.totalMembers);
 
   // 6. Test Admin Dashboard Stats GET /api/admin/stats
   // Non-admin token should get 403

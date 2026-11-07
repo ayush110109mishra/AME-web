@@ -21,6 +21,8 @@ export default function Home() {
   const { user } = useAuth();
   const [clubStats, setClubStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
+  const [latestAlbums, setLatestAlbums] = useState([]);
+  const [loadingGallery, setLoadingGallery] = useState(true);
 
   useEffect(() => {
     // Only fetch stats for admin accounts (security rule)
@@ -44,6 +46,27 @@ export default function Home() {
 
     fetchClubStats();
   }, [user?.role]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchGallery = async () => {
+      try {
+        const response = await api.get('/gallery');
+        if (isMounted && response.data?.data) {
+          setLatestAlbums(response.data.data.slice(0, 4));
+        }
+      } catch (err) {
+        console.error('Failed to load gallery preview:', err.message);
+      } finally {
+        if (isMounted) setLoadingGallery(false);
+      }
+    };
+
+    fetchGallery();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const getYearSuffix = (year) => {
     if (year === 1) return '1st';
@@ -213,25 +236,77 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Clean Empty State */}
-        <GlassCard className="p-10 rounded-2xl text-center border-dashed border-[var(--border-subtle)]">
-          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-[var(--bg-surface-solid)] border border-[var(--border-subtle)] flex items-center justify-center text-sky-400">
-            <Image className="w-7 h-7" />
+        {/* Gallery Preview or Clean Empty State */}
+        {loadingGallery ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <GlassCard key={i} className="overflow-hidden rounded-2xl">
+                <Skeleton width="100%" height="140px" rounded="rounded-none" />
+                <div className="p-4 space-y-2">
+                  <Skeleton width="80%" height="18px" />
+                  <Skeleton width="50%" height="12px" />
+                </div>
+              </GlassCard>
+            ))}
           </div>
-          <h3 className="text-base font-semibold text-[var(--text-main)]">
-            Gallery Media
-          </h3>
-          <p className="text-xs text-[var(--text-muted)] mt-1 max-w-md mx-auto">
-            Event photos will appear here soon.
-          </p>
+        ) : latestAlbums.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {latestAlbums.map((album) => {
+              const hasCover = album.coverImage?.url;
+              return (
+                <Link
+                  key={album._id}
+                  to={`/gallery/${album._id}`}
+                  className="group block"
+                >
+                  <GlassCard
+                    hoverEffect
+                    className="overflow-hidden rounded-2xl h-full flex flex-col justify-between border-[var(--border-subtle)]"
+                  >
+                    <div className="relative h-36 bg-[var(--bg-surface-solid)] overflow-hidden">
+                      {hasCover ? (
+                        <img
+                          src={album.coverImage.url}
+                          alt={album.eventName}
+                          loading="lazy"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[var(--text-subtle)]">
+                          <Image className="w-8 h-8 opacity-40" />
+                        </div>
+                      )}
+                      <span className="absolute top-2 right-2 px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-black/60 text-white backdrop-blur-md">
+                        {album.photoCount} Photos
+                      </span>
+                    </div>
 
-          {import.meta.env.DEV && (
-            <div className="mt-4 inline-flex items-center gap-1.5 text-[11px] font-mono text-sky-400 bg-sky-500/10 px-3 py-1 rounded-full border border-sky-500/20">
-              {/* B ka GalleryGrid yahan judega */}
-              <span>Reserved for Part B Gallery Integration</span>
+                    <div className="p-3.5 flex-1 flex flex-col justify-between">
+                      <h4 className="text-xs font-bold text-[var(--text-main)] group-hover:text-sky-400 transition-colors line-clamp-1">
+                        {album.eventName}
+                      </h4>
+                      <p className="text-[11px] text-[var(--text-subtle)] mt-1">
+                        {new Date(album.eventDate || album.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </GlassCard>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <GlassCard className="p-10 rounded-2xl text-center border-dashed border-[var(--border-subtle)]">
+            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-[var(--bg-surface-solid)] border border-[var(--border-subtle)] flex items-center justify-center text-sky-400">
+              <Image className="w-7 h-7" />
             </div>
-          )}
-        </GlassCard>
+            <h3 className="text-base font-semibold text-[var(--text-main)]">
+              Gallery Media
+            </h3>
+            <p className="text-xs text-[var(--text-muted)] mt-1 max-w-md mx-auto">
+              Event photos will appear here soon.
+            </p>
+          </GlassCard>
+        )}
       </section>
 
       {/* Quick Action Cards */}

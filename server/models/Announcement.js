@@ -47,3 +47,4 @@ const announcementSchema = new mongoose.Schema(
 announcementSchema.index({ createdAt: -1, targetYear: 1 });
 
 module.exports = mongoose.model('Announcement', announcementSchema);
+
