@@ -69,7 +69,9 @@ export const AuthProvider = ({ children }) => {
       if (error.response?.data?.message) {
         msg = error.response.data.message;
       } else if (error.code === 'ERR_NETWORK' || !error.response) {
-        msg = 'Cannot connect to backend server. Make sure server is running on port 5000.';
+        msg = import.meta.env.DEV
+          ? 'Cannot connect to backend server. Make sure server is running on port 5000.'
+          : 'Cannot connect to backend server. Please check backend URL and server status.';
       }
       toast.error(msg);
       throw error;
@@ -92,7 +94,9 @@ export const AuthProvider = ({ children }) => {
       let msg = error.response?.data?.message;
       if (!msg) {
         if (error.code === 'ERR_NETWORK' || !error.response) {
-          msg = 'Cannot connect to backend server. Make sure server is running on port 5000.';
+          msg = import.meta.env.DEV
+            ? 'Cannot connect to backend server. Make sure server is running on port 5000.'
+            : 'Cannot connect to backend server. Please check backend URL and server status.';
         } else {
           msg = 'Registration failed. Please check your inputs.';
         }
