@@ -15,3 +15,4 @@ export const getLightboxImageUrl = (url) => {
 
   return url.replace('/upload/', '/upload/w_1200,c_limit,f_auto,q_auto/');
 };
+
