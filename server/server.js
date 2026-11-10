@@ -41,13 +41,29 @@ const getAllowedOrigins = () => {
 
 const allowedOrigins = getAllowedOrigins();
 
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  const cleanOrigin = origin.replace(/\/+$/, '');
+
+  // If explicitly configured or list is open
+  if (allowedOrigins.length === 0 || allowedOrigins.includes(cleanOrigin)) {
+    return true;
+  }
+  // Allow all Vercel deployments (production, previews, client app)
+  if (/^https:\/\/[a-zA-Z0-9_-]+\.vercel\.app$/.test(cleanOrigin)) {
+    return true;
+  }
+  // Allow localhost in non-production
+  if (process.env.NODE_ENV !== 'production' && /^http:\/\/localhost(:\d+)?$/.test(cleanOrigin)) {
+    return true;
+  }
+  return false;
+};
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, server-to-server)
-      if (!origin) return callback(null, true);
-      const cleanOrigin = origin.replace(/\/+$/, '');
-      if (allowedOrigins.length === 0 || allowedOrigins.includes(cleanOrigin)) {
+      if (isAllowedOrigin(origin)) {
         return callback(null, true);
       }
       return callback(new Error(`Origin ${origin} not allowed by CORS`));
@@ -72,11 +88,15 @@ const healthCheck = (req, res) => {
 app.get('/', healthCheck);
 app.get('/api/health', healthCheck);
 
-// Mount Routes
+// Mount Routes (both /api/* and root prefixes for seamless proxy/rewrite support)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/admin', adminRoutes);
 app.use('/api/announcements', announcementRoutes);
+app.use('/announcements', announcementRoutes);
 app.use('/api/gallery', galleryRoutes);
+app.use('/gallery', galleryRoutes);
 
 // Catch 404
 app.use((req, res, next) => {

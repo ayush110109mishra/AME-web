@@ -1,14 +1,19 @@
 import axios from 'axios';
 
 const getBaseURL = () => {
-  if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+  let url = import.meta.env.VITE_API_URL;
+  if (url) {
+    url = url.trim().replace(/\/+$/, '');
+    if (!url.endsWith('/api')) {
+      url += '/api';
+    }
+    return url;
   }
   if (import.meta.env.DEV) {
     return 'http://localhost:5000/api';
   }
   console.error('VITE_API_URL environment variable is missing in production build.');
-  return '';
+  return '/api';
 };
 
 const api = axios.create({
