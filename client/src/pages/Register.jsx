@@ -170,7 +170,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-grid-pattern relative overflow-hidden">
+    <div className="min-h-[calc(100dvh-4rem)] flex items-center justify-center p-3.5 sm:p-6 lg:p-8 bg-grid-pattern relative overflow-hidden">
       {/* Background Glow Blobs */}
       <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#ff6b2c]/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-[#ffb020]/10 rounded-full blur-3xl pointer-events-none" />
@@ -288,6 +288,7 @@ export default function Register() {
                         label="Email Address"
                         name="email"
                         type="email"
+                        autoComplete="email"
                         placeholder="you@domain.edu"
                         icon={Mail}
                         value={formData.email}
@@ -300,6 +301,8 @@ export default function Register() {
                         label="Mobile Number (10 digits)"
                         name="mobile"
                         type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel"
                         placeholder="9876543210"
                         icon={Phone}
                         value={formData.mobile}

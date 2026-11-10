@@ -45,9 +45,9 @@ export default function Input({
           onChange={onChange}
           placeholder={placeholder}
           disabled={disabled}
-          className={`w-full rounded-xl px-4 py-2.5 text-sm glass-input transition-all duration-200 ${
+          className={`w-full min-h-[44px] rounded-xl px-4 py-2.5 text-base sm:text-sm glass-input transition-all duration-200 ${
             Icon ? 'pl-10' : ''
-          } ${isPassword ? 'pr-10' : ''} ${
+          } ${isPassword ? 'pr-11' : ''} ${
             error
               ? 'border-rose-500/80 focus:border-rose-500 focus:ring-1 focus:ring-rose-500/30'
               : 'border-[var(--border-input)] hover:border-[var(--border-hover)]'
@@ -59,14 +59,14 @@ export default function Input({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[var(--text-subtle)] hover:text-[var(--text-main)] focus:outline-none transition-colors"
+            className="absolute inset-y-0 right-0 w-11 h-full flex items-center justify-center text-[var(--text-subtle)] hover:text-[var(--text-main)] focus:outline-none transition-colors cursor-pointer"
             tabIndex={-1}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? (
-              <EyeOff className="w-4 h-4" />
+              <EyeOff className="w-5 h-5" />
             ) : (
-              <Eye className="w-4 h-4" />
+              <Eye className="w-5 h-5" />
             )}
           </button>
         )}

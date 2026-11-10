@@ -58,19 +58,20 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
             <Button
               variant="secondary"
-              size="sm"
+              size="md"
               onClick={fetchStats}
               disabled={loading}
+              className="w-full sm:w-auto"
             >
               <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
               <span>Refresh Stats</span>
             </Button>
 
-            <Link to="/admin/students">
-              <Button size="sm">
+            <Link to="/admin/students" className="w-full sm:w-auto">
+              <Button size="md" className="w-full sm:w-auto">
                 <span>Manage Students</span>
                 <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </Button>

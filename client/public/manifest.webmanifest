@@ -1,0 +1,17 @@
+{
+  "name": "Association of Mechanical Engineering",
+  "short_name": "AME",
+  "description": "Official portal for the Association of Mechanical Engineering club",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0e1a",
+  "theme_color": "#ff6b2c",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

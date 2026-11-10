@@ -13,6 +13,7 @@ import {
 import GlassCard from '../components/common/GlassCard';
 import Button from '../components/common/Button';
 import Skeleton from '../components/common/Skeleton';
+import { getOptimizedImageUrl } from '../utils/cloudinary';
 
 export default function Gallery() {
   const { isAdmin } = useAuth();
@@ -75,25 +76,25 @@ export default function Gallery() {
         )}
       </div>
 
-      {/* Albums Grid */}
+      {/* Albums Grid (2 columns on mobile, 3 on desktop) */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <GlassCard key={i} className="overflow-hidden rounded-2xl space-y-3">
-              <Skeleton width="100%" height="200px" rounded="rounded-none" />
-              <div className="p-5 space-y-2">
-                <Skeleton width="70%" height="24px" />
-                <Skeleton width="90%" height="16px" />
-                <div className="flex justify-between pt-2">
-                  <Skeleton width="80px" height="16px" />
-                  <Skeleton width="60px" height="16px" />
+            <GlassCard key={i} className="overflow-hidden rounded-2xl space-y-2">
+              <Skeleton width="100%" height="140px" rounded="rounded-none" />
+              <div className="p-3 sm:p-5 space-y-2">
+                <Skeleton width="70%" height="20px" />
+                <Skeleton width="90%" height="14px" />
+                <div className="flex justify-between pt-1">
+                  <Skeleton width="60px" height="14px" />
+                  <Skeleton width="40px" height="14px" />
                 </div>
               </div>
             </GlassCard>
           ))}
         </div>
       ) : albums.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6">
           {albums.map((album) => {
             const hasCover = album.coverImage?.url;
             return (
@@ -107,33 +108,33 @@ export default function Gallery() {
                   className="overflow-hidden rounded-2xl h-full flex flex-col justify-between border-[var(--border-subtle)]"
                 >
                   {/* Album Cover Thumbnail */}
-                  <div className="relative h-48 w-full bg-[var(--bg-surface-solid)] overflow-hidden">
+                  <div className="relative aspect-[4/3] sm:h-48 w-full bg-[var(--bg-surface-solid)] overflow-hidden">
                     {hasCover ? (
                       <img
-                        src={album.coverImage.url}
+                        src={getOptimizedImageUrl(album.coverImage.url, 500)}
                         alt={album.eventName}
                         loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                       />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center text-[var(--text-subtle)] bg-[var(--bg-surface-solid)]">
-                        <Image className="w-10 h-10 mb-1 opacity-50" />
-                        <span className="text-xs">No photos yet</span>
+                        <Image className="w-8 h-8 sm:w-10 sm:h-10 mb-1 opacity-50" />
+                        <span className="text-[11px] sm:text-xs">No photos yet</span>
                       </div>
                     )}
 
-                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold bg-black/60 text-white backdrop-blur-md border border-white/10 flex items-center gap-1.5 shadow-md">
-                      <Layers className="w-3.5 h-3.5 text-[#ff8c2b]" />
-                      <span>{album.photoCount} Photos</span>
+                    <div className="absolute top-2 right-2 sm:top-3 sm:right-3 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-mono font-semibold bg-black/60 text-white backdrop-blur-md border border-white/10 flex items-center gap-1 shadow-md">
+                      <Layers className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#ff8c2b]" />
+                      <span>{album.photoCount} <span className="hidden sm:inline">Photos</span></span>
                     </div>
                   </div>
 
                   {/* Album Details */}
-                  <div className="p-5 flex-1 flex flex-col justify-between">
+                  <div className="p-3 sm:p-5 flex-1 flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center gap-1.5 text-xs text-[var(--text-subtle)] mb-1.5">
-                        <Calendar className="w-3.5 h-3.5" />
-                        <span>
+                      <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-[var(--text-subtle)] mb-1">
+                        <Calendar className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                        <span className="truncate">
                           {new Date(album.eventDate || album.createdAt).toLocaleDateString(undefined, {
                             year: 'numeric',
                             month: 'short',
@@ -142,19 +143,19 @@ export default function Gallery() {
                         </span>
                       </div>
 
-                      <h3 className="text-lg font-bold text-[var(--text-main)] group-hover:text-[#ff8c2b] transition-colors line-clamp-1">
+                      <h3 className="text-sm sm:text-lg font-bold text-[var(--text-main)] group-hover:text-[#ff8c2b] transition-colors line-clamp-1">
                         {album.eventName}
                       </h3>
 
                       {album.description && (
-                        <p className="text-xs text-[var(--text-muted)] mt-1.5 line-clamp-2 leading-relaxed">
+                        <p className="text-xs text-[var(--text-muted)] mt-1 line-clamp-1 sm:line-clamp-2 leading-relaxed hidden sm:block">
                           {album.description}
                         </p>
                       )}
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-semibold text-[#ff8c2b]">
-                      <span>View Album</span>
+                    <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs font-semibold text-[#ff8c2b]">
+                      <span className="text-[11px] sm:text-xs">View Album</span>
                       <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>

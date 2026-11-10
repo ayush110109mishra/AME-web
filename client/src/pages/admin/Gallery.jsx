@@ -21,6 +21,7 @@ import GlassCard from '../../components/common/GlassCard';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Skeleton from '../../components/common/Skeleton';
+import { getOptimizedImageUrl } from '../../utils/cloudinary';
 
 export default function AdminGallery() {
   const [albums, setAlbums] = useState([]);
@@ -398,7 +399,7 @@ export default function AdminGallery() {
                 <span>Choose Cover Image</span>
                 <input
                   type="file"
-                  accept="image/jpeg,image/png,image/webp"
+                  accept="image/*"
                   onChange={handleCoverSelect}
                   className="hidden"
                 />
@@ -486,8 +487,9 @@ export default function AdminGallery() {
                     <div className="relative h-40 bg-[var(--bg-surface-solid)] overflow-hidden">
                       {hasCover ? (
                         <img
-                          src={album.coverImage.url}
+                          src={getOptimizedImageUrl(album.coverImage.url, 450)}
                           alt={album.eventName}
+                          loading="lazy"
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -617,7 +619,7 @@ export default function AdminGallery() {
                     ref={fileInputRef}
                     type="file"
                     multiple
-                    accept="image/jpeg,image/png,image/webp"
+                    accept="image/*"
                     onChange={handleFilesChosen}
                     className="hidden"
                   />
@@ -750,15 +752,15 @@ export default function AdminGallery() {
         )}
       </AnimatePresence>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal (Bottom-sheet style on mobile) */}
       <AnimatePresence>
         {deleteModal.open && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-sm">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-md rounded-2xl glass-panel p-6 border border-[var(--border-subtle)] shadow-2xl relative bg-[var(--dropdown-bg)]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl glass-panel p-6 border-t sm:border border-[var(--border-subtle)] shadow-2xl relative bg-[var(--dropdown-bg)] safe-bottom"
             >
               <div className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-xl bg-rose-500/15 text-rose-500 flex items-center justify-center shrink-0 border border-rose-500/30">
@@ -778,20 +780,22 @@ export default function AdminGallery() {
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex items-center justify-end gap-3">
+              <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5">
                 <Button
                   variant="secondary"
-                  size="sm"
+                  size="md"
                   onClick={() => setDeleteModal({ open: false, type: null, item: null })}
                   disabled={deleting}
+                  className="w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
                 <Button
                   variant="danger"
-                  size="sm"
+                  size="md"
                   onClick={handleDeleteConfirm}
                   isLoading={deleting}
+                  className="w-full sm:w-auto"
                 >
                   Confirm Delete
                 </Button>

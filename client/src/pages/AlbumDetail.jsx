@@ -10,10 +10,13 @@ import {
   X,
   Maximize2,
   Image as ImageIcon,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from '../components/common/GlassCard';
 import Skeleton from '../components/common/Skeleton';
+import { getOptimizedImageUrl, getLightboxImageUrl } from '../utils/cloudinary';
 
 export default function AlbumDetail() {
   const { id } = useParams();
@@ -23,6 +26,7 @@ export default function AlbumDetail() {
   // Lightbox State
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [touchStartX, setTouchStartX] = useState(null);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -49,19 +53,35 @@ export default function AlbumDetail() {
   const photos = album?.images || [];
   const isOpen = lightboxIndex !== null && photos.length > 0;
 
+  // Lock body scroll when lightbox is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      setIsZoomed(false);
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   const nextPhoto = useCallback(() => {
     if (lightboxIndex !== null) {
+      setIsZoomed(false);
       setLightboxIndex((prev) => (prev + 1) % photos.length);
     }
   }, [lightboxIndex, photos.length]);
 
   const prevPhoto = useCallback(() => {
     if (lightboxIndex !== null) {
+      setIsZoomed(false);
       setLightboxIndex((prev) => (prev - 1 + photos.length) % photos.length);
     }
   }, [lightboxIndex, photos.length]);
 
   const closeLightbox = useCallback(() => {
+    setIsZoomed(false);
     setLightboxIndex(null);
   }, []);
 
@@ -148,24 +168,24 @@ export default function AlbumDetail() {
         </div>
       </div>
 
-      {/* Photos Grid */}
+      {/* Photos Grid (2 cols mobile, 3 tablet, 4 desktop) */}
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} width="100%" height="220px" rounded="rounded-2xl" />
+            <Skeleton key={i} width="100%" height="160px" rounded="rounded-2xl" />
           ))}
         </div>
       ) : photos.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {photos.map((photo, index) => (
             <motion.div
               key={photo._id || photo.publicId || index}
               whileHover={{ scale: 1.02 }}
               onClick={() => setLightboxIndex(index)}
-              className="group relative aspect-square rounded-2xl overflow-hidden glass-panel border-[var(--border-subtle)] cursor-pointer bg-[var(--bg-surface-solid)]"
+              className="group relative aspect-square rounded-2xl overflow-hidden glass-panel border-[var(--border-subtle)] cursor-pointer bg-[var(--bg-surface-solid)] select-none"
             >
               <img
-                src={photo.url}
+                src={getOptimizedImageUrl(photo.url, 400)}
                 alt={`${album?.eventName} photo ${index + 1}`}
                 loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -194,21 +214,21 @@ export default function AlbumDetail() {
         </GlassCard>
       )}
 
-      {/* Lightbox Modal */}
+      {/* Lightbox Modal with Mobile Touch Gestures & Pinch/Double-Tap Zoom */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md select-none"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md select-none touch-manipulation"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            {/* Top Bar: Title & Close Button */}
-            <div className="absolute top-0 inset-x-0 p-4 sm:p-6 flex items-center justify-between z-50 text-white">
-              <div>
-                <p className="text-sm font-semibold truncate max-w-md">
+            {/* Top Bar: Title, Zoom & Close Button (Touch Targets >= 44x44px) */}
+            <div className="absolute top-0 inset-x-0 p-4 sm:p-6 flex items-center justify-between z-50 text-white bg-gradient-to-b from-black/80 to-transparent">
+              <div className="min-w-0 pr-4">
+                <p className="text-sm font-semibold truncate max-w-xs sm:max-w-md">
                   {album?.eventName}
                 </p>
                 <p className="text-xs text-slate-400 font-mono">
@@ -216,53 +236,67 @@ export default function AlbumDetail() {
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={closeLightbox}
-                className="p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                aria-label="Close Lightbox"
-              >
-                <X className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsZoomed(!isZoomed)}
+                  className="w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all cursor-pointer"
+                  aria-label={isZoomed ? 'Zoom Out' : 'Zoom In'}
+                >
+                  {isZoomed ? <ZoomOut className="w-5 h-5" /> : <ZoomIn className="w-5 h-5 text-[#ff8c2b]" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={closeLightbox}
+                  className="w-11 h-11 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all cursor-pointer"
+                  aria-label="Close Lightbox"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
-            {/* Previous Button */}
+            {/* Previous Button (Large 44px tap target) */}
             <button
               type="button"
               onClick={prevPhoto}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/60 hover:bg-black/80 text-white border border-white/10 transition-colors z-50 cursor-pointer hidden sm:flex items-center justify-center"
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 active:scale-95 text-white border border-white/15 flex items-center justify-center transition-all z-50 cursor-pointer shadow-lg"
               aria-label="Previous Photo"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
 
             {/* Main Image Container */}
-            <div className="relative max-w-5xl max-h-[80vh] p-4 flex items-center justify-center">
+            <div 
+              className="relative max-w-5xl max-h-[80dvh] p-2 sm:p-4 flex items-center justify-center overflow-hidden cursor-zoom-in"
+              onDoubleClick={() => setIsZoomed(!isZoomed)}
+            >
               <motion.img
                 key={photos[lightboxIndex]?.url}
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.96 }}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: isZoomed ? 1.75 : 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                src={photos[lightboxIndex]?.url}
+                src={getLightboxImageUrl(photos[lightboxIndex]?.url)}
                 alt={`${album?.eventName} preview`}
-                className="max-h-[75vh] max-w-full rounded-2xl object-contain shadow-2xl border border-white/10"
+                className="max-h-[70dvh] sm:max-h-[75dvh] max-w-full rounded-xl sm:rounded-2xl object-contain shadow-2xl transition-transform"
               />
             </div>
 
-            {/* Next Button */}
+            {/* Next Button (Large 44px tap target) */}
             <button
               type="button"
               onClick={nextPhoto}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/60 hover:bg-black/80 text-white border border-white/10 transition-colors z-50 cursor-pointer hidden sm:flex items-center justify-center"
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 hover:bg-black/80 active:scale-95 text-white border border-white/15 flex items-center justify-center transition-all z-50 cursor-pointer shadow-lg"
               aria-label="Next Photo"
             >
               <ChevronRight className="w-6 h-6" />
             </button>
 
             {/* Bottom thumbnail strip / instruction */}
-            <div className="absolute bottom-4 inset-x-0 text-center text-xs text-slate-400 font-mono pointer-events-none">
-              Use Left / Right arrow keys to navigate · Esc to close
+            <div className="absolute bottom-4 inset-x-0 text-center text-xs text-slate-400 font-mono pointer-events-none px-4">
+              Swipe left/right or tap arrows · Double-tap to zoom
             </div>
           </motion.div>
         )}

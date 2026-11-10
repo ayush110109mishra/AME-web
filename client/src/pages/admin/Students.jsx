@@ -274,9 +274,10 @@ export default function Students() {
         </div>
       </GlassCard>
 
-      {/* Data Table */}
+      {/* Data Table (Desktop) & Card List (Mobile) */}
       <GlassCard className="rounded-2xl overflow-hidden border-[var(--border-subtle)] shadow-2xl">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-sm text-[var(--text-main)]">
             <thead className="bg-[var(--bg-surface-solid)] text-[11px] uppercase tracking-wider font-semibold text-[var(--text-subtle)] border-b border-[var(--border-subtle)]">
               <tr>
@@ -462,6 +463,136 @@ export default function Students() {
           </table>
         </div>
 
+        {/* Mobile Card List View (Phones 360px-430px) */}
+        <div className="block md:hidden divide-y divide-[var(--border-subtle)]">
+          {loading && students.length === 0 ? (
+            Array.from({ length: 4 }).map((_, idx) => (
+              <div key={`skel-card-${idx}`} className="p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <Skeleton width="40px" height="40px" rounded="rounded-xl" />
+                  <div className="space-y-1 flex-1">
+                    <Skeleton width="120px" height="18px" />
+                    <Skeleton width="80px" height="14px" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Skeleton width="100%" height="16px" />
+                  <Skeleton width="70%" height="16px" />
+                </div>
+              </div>
+            ))
+          ) : students.length === 0 ? (
+            <div className="p-8 text-center text-[var(--text-muted)] space-y-2">
+              <Users className="w-8 h-8 mx-auto text-[var(--text-subtle)]" />
+              <p className="font-medium text-[var(--text-main)] text-sm">No members matched criteria</p>
+              <p className="text-xs text-[var(--text-subtle)]">Try adjusting your search query or filters.</p>
+            </div>
+          ) : (
+            students.map((student) => {
+              const isSelf = currentUser?._id === student._id;
+              const isAdminUser = student.role === 'admin';
+
+              return (
+                <div key={`mob-${student._id}`} className="p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 border ${
+                          isAdminUser
+                            ? 'bg-amber-500/15 text-amber-500 border-amber-500/30'
+                            : 'bg-[#ff6b2c]/15 text-[#ff8c2b] border-[#ff6b2c]/30'
+                        }`}
+                      >
+                        {student.name?.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-semibold text-sm text-[var(--text-main)] truncate">{student.name}</p>
+                          {isSelf && (
+                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--bg-surface-solid)] text-[var(--text-muted)] border border-[var(--border-subtle)]">
+                              You
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-[var(--text-subtle)] truncate">{student.branch}</p>
+                      </div>
+                    </div>
+
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold font-mono uppercase shrink-0 border ${
+                        isAdminUser
+                          ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                          : 'bg-sky-500/15 text-sky-400 border-sky-500/30'
+                      }`}
+                    >
+                      {isAdminUser ? <ShieldCheck className="w-3 h-3" /> : <GraduationCap className="w-3 h-3" />}
+                      <span>{student.role}</span>
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs py-1">
+                    <div className="p-2 rounded-lg bg-[var(--bg-main)] border border-[var(--border-subtle)]">
+                      <span className="text-[10px] text-[var(--text-subtle)] block uppercase font-mono">Roll No</span>
+                      <span className="font-mono font-semibold text-[#ff8c2b]">{student.rollNo}</span>
+                    </div>
+                    <div className="p-2 rounded-lg bg-[var(--bg-main)] border border-[var(--border-subtle)]">
+                      <span className="text-[10px] text-[var(--text-subtle)] block uppercase font-mono">Year & Sem</span>
+                      <span className="font-medium text-[var(--text-main)]">Year {student.year} · Sem {student.semester}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 text-xs text-[var(--text-muted)] pt-1">
+                    <div className="flex items-center gap-2 truncate">
+                      <Mail className="w-3.5 h-3.5 text-[var(--text-subtle)] shrink-0" />
+                      <a href={`mailto:${student.email}`} className="truncate hover:text-[#ff8c2b]">
+                        {student.email}
+                      </a>
+                    </div>
+                    {student.mobile && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-3.5 h-3.5 text-[var(--text-subtle)] shrink-0" />
+                        <a href={`tel:${student.mobile}`} className="font-mono hover:text-[#ff8c2b]">
+                          {student.mobile}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="pt-2 border-t border-[var(--border-subtle)]">
+                    {isSelf ? (
+                      <span className="text-xs text-[var(--text-subtle)] italic block text-center py-1">
+                        Cannot change your own role
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => openRoleModal(student, isAdminUser ? 'student' : 'admin')}
+                        className={`w-full min-h-[44px] rounded-xl text-xs font-semibold px-4 py-2.5 transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
+                          isAdminUser
+                            ? 'bg-rose-500/10 text-rose-500 border-rose-500/20 active:bg-rose-500/20'
+                            : 'bg-amber-500/10 text-amber-500 border-amber-500/20 active:bg-amber-500/20'
+                        }`}
+                      >
+                        {isAdminUser ? (
+                          <>
+                            <ShieldAlert className="w-4 h-4" />
+                            <span>Remove Admin Role</span>
+                          </>
+                        ) : (
+                          <>
+                            <Shield className="w-4 h-4" />
+                            <span>Elevate to Admin</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
         {/* Pagination Bar */}
         <div className="px-6 py-4 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[var(--text-muted)]">
           <div>
@@ -508,21 +639,21 @@ export default function Students() {
         </div>
       </GlassCard>
 
-      {/* Role Change Confirmation Modal */}
+      {/* Role Change Confirmation Modal (Bottom-sheet style on mobile) */}
       <AnimatePresence>
         {modalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-sm">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
               transition={{ duration: 0.2 }}
-              className="w-full max-w-md rounded-2xl glass-panel p-6 border border-[var(--border-subtle)] shadow-2xl relative bg-[var(--dropdown-bg)]"
+              className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl glass-panel p-6 border-t sm:border border-[var(--border-subtle)] shadow-2xl relative bg-[var(--dropdown-bg)] max-h-[90dvh] overflow-y-auto safe-bottom"
             >
               <button
                 type="button"
                 onClick={closeRoleModal}
-                className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-[var(--text-main)] transition-colors cursor-pointer"
+                className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-lg text-[var(--text-subtle)] hover:text-[var(--text-main)] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -538,7 +669,7 @@ export default function Students() {
                   <AlertTriangle className="w-6 h-6" />
                 </div>
 
-                <div>
+                <div className="pr-6">
                   <h3 className="text-lg font-bold text-[var(--text-main)] font-heading">
                     {targetRole === 'admin'
                       ? 'Promote to Administrator'
@@ -573,21 +704,23 @@ export default function Students() {
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex items-center justify-end gap-3">
+              <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5">
                 <Button
                   variant="secondary"
-                  size="sm"
+                  size="md"
                   onClick={closeRoleModal}
                   disabled={updatingRole}
+                  className="w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
 
                 <Button
                   variant={targetRole === 'admin' ? 'primary' : 'danger'}
-                  size="sm"
+                  size="md"
                   onClick={handleRoleChangeConfirm}
                   isLoading={updatingRole}
+                  className="w-full sm:w-auto"
                 >
                   {targetRole === 'admin' ? 'Confirm Promotion' : 'Confirm Demotion'}
                 </Button>

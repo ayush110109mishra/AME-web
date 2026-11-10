@@ -63,12 +63,25 @@
     --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
+  html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
     font-family: var(--font-body);
     background-color: var(--bg-main);
     color: var(--text-main);
-    overflow-x: hidden;
+    min-height: 100dvh;
     transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  /* Prevent iOS Safari 16px auto-zoom bug on focus */
+  @media (max-width: 768px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -198,4 +211,31 @@
 
 .animate-spin-reverse-slow {
   animation: spin-reverse-slow 30s linear infinite;
+}
+
+/* Safe Area Inset Helpers for Notches */
+.safe-top {
+  padding-top: max(env(safe-area-inset-top, 0px), 1rem);
+}
+.safe-bottom {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 1rem);
+}
+
+/* Touch friendly utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Accessibility: Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -335,7 +335,8 @@ export default function AdminAnnouncements() {
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-sm text-[var(--text-main)]">
             <thead className="bg-[var(--bg-surface-solid)] text-[11px] uppercase tracking-wider font-semibold text-[var(--text-subtle)] border-b border-[var(--border-subtle)]">
               <tr>
@@ -446,22 +447,98 @@ export default function AdminAnnouncements() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Card List View (Phones 360px-430px) */}
+        <div className="block md:hidden divide-y divide-[var(--border-subtle)]">
+          {loading && announcements.length === 0 ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={`skel-mob-${i}`} className="p-4 space-y-2">
+                <Skeleton width="70%" height="20px" />
+                <Skeleton width="100%" height="16px" />
+                <div className="flex justify-between pt-2">
+                  <Skeleton width="60px" height="16px" />
+                  <Skeleton width="80px" height="32px" rounded="rounded-xl" />
+                </div>
+              </div>
+            ))
+          ) : announcements.length === 0 ? (
+            <div className="p-8 text-center text-[var(--text-muted)]">
+              <p className="font-semibold text-sm text-[var(--text-main)]">
+                No announcements published yet
+              </p>
+              <p className="text-xs text-[var(--text-subtle)] mt-1">
+                Use the form above to broadcast circulars.
+              </p>
+            </div>
+          ) : (
+            announcements.map((item) => (
+              <div key={`mob-${item._id}`} className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider bg-[#ff6b2c]/15 text-[#ff8c2b] border border-[#ff6b2c]/30">
+                        <Tag className="w-3 h-3" />
+                        {item.category}
+                      </span>
+                      <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-[var(--bg-surface-solid)] border border-[var(--border-subtle)] text-[var(--text-muted)]">
+                        {item.targetYear === 0 ? 'All Years' : `Year ${item.targetYear}`}
+                      </span>
+                    </div>
+                    <h4 className="font-bold text-sm text-[var(--text-main)] leading-snug">
+                      {item.title}
+                    </h4>
+                    <p className="text-xs text-[var(--text-muted)] mt-1 line-clamp-2 leading-relaxed">
+                      {item.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs">
+                  <span className="text-[11px] text-[var(--text-subtle)] font-mono flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    {new Date(item.createdAt).toLocaleDateString()}
+                  </span>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => startEdit(item)}
+                      className="min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-semibold glass-panel text-[var(--text-main)] hover:bg-[var(--bg-surface-hover)] flex items-center gap-1.5 cursor-pointer border border-[var(--border-subtle)]"
+                    >
+                      <Edit2 className="w-3.5 h-3.5 text-[#ff8c2b]" />
+                      <span>Edit</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => openDeleteModal(item)}
+                      className="min-h-[40px] px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 flex items-center gap-1.5 cursor-pointer border border-rose-500/25"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </GlassCard>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal (Bottom-sheet style on mobile) */}
       <AnimatePresence>
         {deleteModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-sm">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-md rounded-2xl glass-panel p-6 border border-[var(--border-subtle)] shadow-2xl relative bg-[var(--dropdown-bg)]"
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl glass-panel p-6 border-t sm:border border-[var(--border-subtle)] shadow-2xl relative bg-[var(--dropdown-bg)] safe-bottom"
             >
               <button
                 type="button"
                 onClick={closeDeleteModal}
-                className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-[var(--text-main)] transition-colors cursor-pointer"
+                className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-lg text-[var(--text-subtle)] hover:text-[var(--text-main)] transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -470,7 +547,7 @@ export default function AdminAnnouncements() {
                 <div className="w-12 h-12 rounded-xl bg-rose-500/15 text-rose-500 flex items-center justify-center shrink-0 border border-rose-500/30">
                   <AlertTriangle className="w-6 h-6" />
                 </div>
-                <div>
+                <div className="pr-6">
                   <h3 className="text-lg font-bold text-[var(--text-main)] font-heading">
                     Delete Announcement?
                   </h3>
@@ -484,20 +561,22 @@ export default function AdminAnnouncements() {
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex items-center justify-end gap-3">
+              <div className="mt-6 pt-4 border-t border-[var(--border-subtle)] flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5">
                 <Button
                   variant="secondary"
-                  size="sm"
+                  size="md"
                   onClick={closeDeleteModal}
                   disabled={deleting}
+                  className="w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
                 <Button
                   variant="danger"
-                  size="sm"
+                  size="md"
                   onClick={handleDelete}
                   isLoading={deleting}
+                  className="w-full sm:w-auto"
                 >
                   Confirm Delete
                 </Button>

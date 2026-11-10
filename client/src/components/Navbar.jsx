@@ -44,6 +44,26 @@ export default function Navbar() {
     setUserDropdownOpen(false);
   }, [location.pathname]);
 
+  // Lock body scroll and handle Escape key when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setMobileMenuOpen(false);
+        setUserDropdownOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [mobileMenuOpen]);
+
   const handleLogout = () => {
     logout();
     navigate('/login');
@@ -246,29 +266,29 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Actions: Theme toggle + Hamburger */}
-          <div className="flex md:hidden items-center gap-1.5">
+          {/* Mobile Actions: Theme toggle + Hamburger (44x44px minimum tap targets) */}
+          <div className="flex md:hidden items-center gap-2">
             <button
               type="button"
               onClick={toggleTheme}
-              className="p-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-main)] focus:outline-none"
+              className="w-11 h-11 flex items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-main)] active:scale-95 transition-all focus:outline-none"
               aria-label={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
             >
               {isDark ? (
-                <Sun className="w-4 h-4 text-[#ffb020]" />
+                <Sun className="w-5 h-5 text-[#ffb020]" />
               ) : (
-                <Moon className="w-4 h-4 text-[#ff6b2c]" />
+                <Moon className="w-5 h-5 text-[#ff6b2c]" />
               )}
             </button>
 
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface-hover)] focus:outline-none"
+              className="w-11 h-11 flex items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface-hover)] active:scale-95 transition-all focus:outline-none"
               aria-label="Toggle Navigation Menu"
             >
               {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-6 h-6 text-[#ff8c2b]" />
               ) : (
                 <Menu className="w-6 h-6" />
               )}
@@ -277,94 +297,112 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer & Backdrop */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-[var(--border-subtle)] bg-[var(--dropdown-bg)] backdrop-blur-2xl px-4 pt-3 pb-6 space-y-3"
-          >
-            {isAuthenticated && (
-              <div className="p-3 rounded-xl glass-panel flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#ff6b2c] to-[#ffb020] text-slate-950 font-bold text-sm flex items-center justify-center">
-                  {getInitials(user?.name)}
+          <>
+            {/* Backdrop overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-0 top-16 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+            />
+
+            {/* Slide Drawer */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="relative z-50 md:hidden border-t border-[var(--border-subtle)] bg-[var(--dropdown-bg)] backdrop-blur-2xl px-4 pt-3 pb-6 space-y-3 max-h-[calc(100dvh-4rem)] overflow-y-auto"
+            >
+              {isAuthenticated && (
+                <div className="p-3.5 rounded-2xl glass-panel flex items-center gap-3 mb-2">
+                  <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-[#ff6b2c] to-[#ffb020] text-slate-950 font-bold text-sm flex items-center justify-center shadow-md">
+                    {getInitials(user?.name)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-[var(--text-main)] truncate">{user?.name}</p>
+                    <p className="text-xs text-[var(--text-subtle)] truncate">
+                      Roll: {user?.rollNo} · <span className="capitalize">{user?.role}</span>
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-[var(--text-main)]">{user?.name}</p>
-                  <p className="text-xs text-[var(--text-subtle)]">
-                    Roll: {user?.rollNo} · {user?.role}
-                  </p>
-                </div>
-              </div>
-            )}
+              )}
 
-            {isAuthenticated ? (
-              <div className="space-y-1">
-                {navLinks.map((link) => {
-                  const Icon = link.icon;
-                  const isActive = location.pathname === link.path;
-                  return (
-                    <Link
-                      key={link.name}
-                      to={link.path}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                        isActive
-                          ? 'text-[var(--text-main)] bg-[var(--bg-surface-hover)] font-semibold'
-                          : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface-hover)]'
-                      }`}
-                    >
-                      <Icon className="w-4 h-4 text-[var(--text-subtle)]" />
-                      <span>{link.name}</span>
-                    </Link>
-                  );
-                })}
+              {isAuthenticated ? (
+                <div className="space-y-1.5">
+                  {navLinks.map((link) => {
+                    const Icon = link.icon;
+                    const isActive = location.pathname === link.path;
+                    return (
+                      <Link
+                        key={link.name}
+                        to={link.path}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={`min-h-[48px] flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-colors ${
+                          isActive
+                            ? 'text-[var(--text-main)] bg-[var(--bg-surface-hover)] font-semibold border border-[var(--border-subtle)]'
+                            : 'text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface-hover)]'
+                        }`}
+                      >
+                        <Icon className="w-5 h-5 text-[#ff8c2b]" />
+                        <span>{link.name}</span>
+                      </Link>
+                    );
+                  })}
 
-                <Link
-                  to="/profile"
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface-hover)] transition-colors"
-                >
-                  <User className="w-4 h-4 text-[var(--text-subtle)]" />
-                  <span>My Profile</span>
-                </Link>
-
-                {isAdmin && (
                   <Link
-                    to="/admin"
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#ff8c2b] bg-[#ff6b2c]/10 transition-colors"
+                    to="/profile"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="min-h-[48px] flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface-hover)] transition-colors"
                   >
-                    <Shield className="w-4 h-4" />
-                    <span>Admin Panel</span>
+                    <User className="w-5 h-5 text-[var(--text-subtle)]" />
+                    <span>My Profile</span>
                   </Link>
-                )}
 
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-rose-500 hover:bg-rose-500/10 transition-colors text-left"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            ) : (
-              <div className="pt-2 flex flex-col gap-2">
-                <Link
-                  to="/login"
-                  className="w-full py-2.5 rounded-xl text-center text-sm font-semibold text-[var(--text-main)] glass-panel hover:bg-[var(--bg-surface-hover)] transition-colors"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/register"
-                  className="w-full py-2.5 rounded-xl text-center text-sm font-bold bg-gradient-to-r from-[#ff6b2c] to-[#ffb020] text-slate-950 shadow-lg shadow-[#ff6b2c]/20 hover:brightness-105 transition-all"
-                >
-                  Join AME
-                </Link>
-              </div>
-            )}
-          </motion.div>
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="min-h-[48px] flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-semibold text-[#ff8c2b] bg-[#ff6b2c]/10 border border-[#ff6b2c]/20 transition-colors"
+                    >
+                      <Shield className="w-5 h-5 text-[#ff8c2b]" />
+                      <span>Admin Control Panel</span>
+                    </Link>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full min-h-[48px] flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-rose-500 hover:bg-rose-500/10 transition-colors text-left cursor-pointer"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="pt-2 flex flex-col gap-2.5">
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full min-h-[46px] flex items-center justify-center rounded-xl text-center text-sm font-semibold text-[var(--text-main)] glass-panel hover:bg-[var(--bg-surface-hover)] transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full min-h-[46px] flex items-center justify-center rounded-xl text-center text-sm font-bold bg-gradient-to-r from-[#ff6b2c] to-[#ffb020] text-slate-950 shadow-lg shadow-[#ff6b2c]/20 hover:brightness-105 transition-all"
+                  >
+                    Join AME
+                  </Link>
+                </div>
+              )}
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </header>

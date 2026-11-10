@@ -291,6 +291,9 @@ export default function Profile() {
                 <Input
                   label="Mobile Number"
                   name="mobile"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
                   icon={Phone}
                   value={formData.mobile}
                   onChange={handleChange}

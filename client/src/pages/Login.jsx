@@ -54,7 +54,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-grid-pattern relative overflow-hidden">
+    <div className="min-h-[calc(100dvh-4rem)] flex items-center justify-center p-3.5 sm:p-6 lg:p-8 bg-grid-pattern relative overflow-hidden">
       {/* Glow Blobs */}
       <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-[#ff6b2c]/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#ffb020]/10 rounded-full blur-3xl pointer-events-none" />

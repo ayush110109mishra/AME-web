@@ -134,16 +134,19 @@ export default function AnnouncementsSection({ year }) {
           ))}
         </div>
       ) : (
-        /* Clean empty state */
-        <GlassCard className="p-10 rounded-2xl text-center border-dashed border-[var(--border-subtle)]">
-          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-[var(--bg-surface-solid)] border border-[var(--border-subtle)] flex items-center justify-center text-[#ff8c2b]">
+        /* Clean Coming Soon empty state */
+        <GlassCard className="p-8 sm:p-10 rounded-2xl text-center border-dashed border-[var(--border-subtle)]">
+          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-[#ff6b2c]/20 to-[#ffb020]/10 border border-[#ff6b2c]/30 flex items-center justify-center text-[#ff8c2b]">
             <Bell className="w-7 h-7" />
           </div>
-          <h3 className="text-base font-semibold text-[var(--text-main)]">
-            No Live Announcements Right Now
+          <span className="inline-block px-3 py-0.5 rounded-full text-[10px] font-mono uppercase bg-[#ff6b2c]/10 text-[#ff8c2b] border border-[#ff6b2c]/20 mb-2">
+            Stay Tuned
+          </span>
+          <h3 className="text-lg font-bold text-[var(--text-main)] font-heading">
+            Official Announcements Coming Soon
           </h3>
-          <p className="text-xs text-[var(--text-muted)] mt-1 max-w-md mx-auto">
-            Stay tuned! Upcoming mechanical symposium dates, CAD challenge guidelines, and guest lectures will be posted here directly.
+          <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1.5 max-w-md mx-auto leading-relaxed">
+            Official circulars, workshop schedules, and technical competition circulars for the upcoming session will be published here soon.
           </p>
         </GlassCard>
       )}

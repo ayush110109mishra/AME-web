@@ -126,8 +126,8 @@ export default function Announcements() {
         )}
       </div>
 
-      {/* Category Filter Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      {/* Category Filter Chips - Edge-to-edge scrollable on mobile */}
+      <div className="flex items-center gap-2 overflow-x-auto py-1 pb-2 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
         {categories.map((c) => {
           const isActive = category === c.value;
           return (
@@ -135,7 +135,7 @@ export default function Announcements() {
               key={c.label}
               type="button"
               onClick={() => handleCategoryChange(c.value)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+              className={`min-h-[40px] px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center justify-center shrink-0 ${
                 isActive
                   ? 'bg-gradient-to-r from-[#ff6b2c] to-[#ffb020] text-slate-950 shadow-md shadow-[#ff6b2c]/20'
                   : 'glass-panel text-[var(--text-muted)] hover:text-[var(--text-main)] hover:bg-[var(--bg-surface-hover)]'
@@ -222,17 +222,20 @@ export default function Announcements() {
         </div>
       ) : (
         /* Empty State */
-        <GlassCard className="p-16 rounded-3xl text-center border-dashed border-[var(--border-subtle)]">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-[var(--bg-surface-solid)] border border-[var(--border-subtle)] flex items-center justify-center text-[#ff8c2b]">
+        <GlassCard className="p-8 sm:p-16 rounded-3xl text-center border-dashed border-[var(--border-subtle)]">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#ff6b2c]/20 to-[#ffb020]/10 border border-[#ff6b2c]/30 flex items-center justify-center text-[#ff8c2b]">
             <Bell className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-bold text-[var(--text-main)] font-heading">
-            No Announcements Found
+          <span className="inline-block px-3 py-0.5 rounded-full text-[10px] font-mono uppercase bg-[#ff6b2c]/10 text-[#ff8c2b] border border-[#ff6b2c]/20 mb-2">
+            Stay Tuned
+          </span>
+          <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-main)] font-heading">
+            Official Announcements Coming Soon
           </h2>
-          <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1.5 max-w-md mx-auto">
+          <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1.5 max-w-md mx-auto leading-relaxed">
             {category
               ? `There are currently no circulars in the "${category}" category.`
-              : 'There are no department announcements published at the moment. Please check back later.'}
+              : 'Official circulars, workshop schedules, and technical competition circulars for the upcoming session will be published here soon.'}
           </p>
           {category && (
             <div className="mt-4">
