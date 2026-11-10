@@ -18,14 +18,40 @@ const galleryRoutes = require('./routes/gallery');
 
 const app = express();
 
+// Trust reverse proxy (Render, Heroku, etc.) for rate limiters and secure cookies
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 
-// Cross-Origin Resource Sharing
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+// Cross-Origin Resource Sharing (multi-origin support + dev localhost fallback)
+const getAllowedOrigins = () => {
+  const configured = (process.env.CLIENT_URL || '')
+    .split(',')
+    .map((url) => url.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
+
+  if (process.env.NODE_ENV !== 'production') {
+    if (!configured.includes('http://localhost:5173')) {
+      configured.push('http://localhost:5173');
+    }
+  }
+  return configured;
+};
+
+const allowedOrigins = getAllowedOrigins();
+
 app.use(
   cors({
-    origin: clientUrl,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+      const cleanOrigin = origin.replace(/\/+$/, '');
+      if (allowedOrigins.length === 0 || allowedOrigins.includes(cleanOrigin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
     credentials: true,
   })
 );
@@ -34,17 +60,17 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
+// Health check endpoints for Render and monitoring
+const healthCheck = (req, res) => {
   res.status(200).json({
     success: true,
-    message: 'AME Website API is operational',
-    data: {
-      uptime: process.uptime(),
-      timestamp: new Date().toISOString(),
-    },
+    message: 'AME API running',
+    data: null,
   });
-});
+};
+
+app.get('/', healthCheck);
+app.get('/api/health', healthCheck);
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
@@ -71,7 +97,7 @@ app.use((err, req, res, next) => {
   return res.status(statusCode).json({
     success: false,
     message: err.message || 'Internal Server Error',
-    data: process.env.NODE_ENV === 'development' ? { stack: err.stack } : null,
+    data: process.env.NODE_ENV === 'production' ? null : { stack: err.stack },
   });
 });
 
@@ -79,6 +105,12 @@ const PORT = process.env.PORT || 5000;
 
 const start = async () => {
   try {
+    // Validate critical environment variables
+    if (!process.env.JWT_SECRET) {
+      console.error('❌ FATAL: JWT_SECRET environment variable is missing.');
+      process.exit(1);
+    }
+
     await connectDB();
     app.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);
@@ -95,4 +127,3 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 module.exports = app;
-

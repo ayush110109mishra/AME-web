@@ -61,7 +61,7 @@ const runTests = async () => {
 
   // 1. Seed admin
   const adminEmail = (process.env.ADMIN_EMAIL || 'admin@ame.club').toLowerCase();
-  const adminPass = process.env.ADMIN_PASSWORD || 'Admin@123456';
+  const adminPass = process.env.ADMIN_PASSWORD || 'DevAdmin@Pass123';
 
   // Cleanup past test student records to allow clean rerun
   await User.deleteMany({

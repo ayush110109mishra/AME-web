@@ -10,10 +10,18 @@ const seedAdmin = async () => {
   try {
     await connectDB();
 
+    const isProduction = process.env.NODE_ENV === 'production';
+    if (isProduction && (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD)) {
+      console.error(
+        '❌ FATAL: ADMIN_EMAIL and ADMIN_PASSWORD environment variables are strictly required in production to seed the admin.'
+      );
+      process.exit(1);
+    }
+
     const adminEmail = (
       process.env.ADMIN_EMAIL || 'admin@ame.club'
     ).toLowerCase();
-    const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@123456';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'DevAdmin@Pass123';
 
     const existingAdmin = await User.findOne({
       $or: [{ email: adminEmail }, { role: 'admin' }],

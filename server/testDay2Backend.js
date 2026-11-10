@@ -62,7 +62,7 @@ const run = async () => {
 
   // 1. Create and login as Admin
   const adminEmail = (process.env.ADMIN_EMAIL || 'admin@ame.club').toLowerCase();
-  const adminPass = process.env.ADMIN_PASSWORD || 'Admin@123456';
+  const adminPass = process.env.ADMIN_PASSWORD || 'DevAdmin@Pass123';
 
   let admin = await User.findOne({ email: adminEmail });
   if (!admin) {

@@ -98,15 +98,16 @@ project AME/
 Copy `server/.env.example` to `server/.env`:
 ```bash
 PORT=5000
+NODE_ENV=development
 # MongoDB Atlas Connection URI:
 MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/ame_website?retryWrites=true&w=majority
-JWT_SECRET=ame_super_secret_jwt_key_2026_secure
+JWT_SECRET=your_strong_jwt_secret_min_32_characters_long
 JWT_EXPIRES_IN=7d
 CLIENT_URL=http://localhost:5173
 
-# Default Admin Credentials for Seeding
+# Admin Seed Credentials
 ADMIN_EMAIL=admin@ame.club
-ADMIN_PASSWORD=Admin@123456
+ADMIN_PASSWORD=your_secure_admin_password
 ```
 
 #### Frontend (`client/.env`)
@@ -124,7 +125,7 @@ Run the admin seeding script from the root or inside `server/`:
 npm run seed:admin
 # or: cd server && npm run seed:admin
 ```
-- Creates an admin user with email `admin@ame.club` and password `Admin@123456`.
+- Creates an admin user with the email and password specified in your environment variables (`ADMIN_EMAIL` and `ADMIN_PASSWORD`).
 - If an admin user already exists, it safely skips creation without duplicates.
 
 ---
@@ -271,6 +272,58 @@ npm run build:client
 | PUT | `/api/gallery/:id` | Admin | Update album info or set cover photo |
 | DELETE | `/api/gallery/:id/images/:publicId` | Admin | Delete photo (Destroys Cloudinary asset & DB record) |
 | DELETE | `/api/gallery/:id` | Admin | Delete album (Destroys all album photos from Cloudinary & DB) |
+
+---
+
+## 🚀 Production Deployment Guide
+
+### 1. Backend Deployment (Render Web Service)
+
+Deploy the Express API to **[Render](https://render.com/)**:
+1. Click **New +** > **Web Service**.
+2. Connect your GitHub repository (`AME-web`).
+3. Set the following build and run settings:
+   - **Name:** `ame-api` (or preferred name)
+   - **Region:** Closest to your users (e.g., Singapore / Frankfurt)
+   - **Branch:** `main`
+   - **Root Directory:** `server`
+   - **Runtime:** `Node`
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+4. Add the required **Environment Variables** in the Render Dashboard (never commit secret values to git):
+   - `NODE_ENV`: `production`
+   - `PORT`: `10000` (Render will assign or default)
+   - `MONGO_URI`: `mongodb+srv://<db_user>:<db_pass>@<cluster>.mongodb.net/ame_website?retryWrites=true&w=majority`
+   - `JWT_SECRET`: High-entropy secret key (at least 32 characters)
+   - `JWT_EXPIRES_IN`: `7d`
+   - `CLIENT_URL`: Your Vercel frontend URL (e.g. `https://ame-web.vercel.app` — supports comma-separated URLs if custom domains are used)
+   - `CLOUDINARY_CLOUD_NAME`: Cloudinary account cloud name
+   - `CLOUDINARY_API_KEY`: Cloudinary API key
+   - `CLOUDINARY_API_SECRET`: Cloudinary API secret
+   - `ADMIN_EMAIL`: Club master administrator email
+   - `ADMIN_PASSWORD`: Strong master administrator password
+
+> [!NOTE]
+> Render runs behind a reverse proxy. The server has `app.set('trust proxy', 1)` enabled, ensuring IP-based rate limiting functions accurately.
+
+---
+
+### 2. Frontend Deployment (Vercel)
+
+Deploy the React client to **[Vercel](https://vercel.com/)**:
+1. Click **Add New...** > **Project** and import your GitHub repository.
+2. Configure Project Settings:
+   - **Framework Preset:** `Vite`
+   - **Root Directory:** `client`
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `dist`
+   - **Install Command:** `npm install`
+3. Add the required **Environment Variable**:
+   - `VITE_API_URL`: `https://<your-render-backend-service>.onrender.com/api`
+4. Deploy!
+
+> [!TIP]
+> The repository includes [`client/vercel.json`](file:///client/vercel.json) with client-side SPA rewrites (`"source": "/(.*)", "destination": "/index.html"`). This prevents `404 Not Found` errors when users reload deep routes like `/admin` or `/announcements`.
 
 ---
 
